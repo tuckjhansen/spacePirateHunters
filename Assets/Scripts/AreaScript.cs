@@ -42,6 +42,18 @@ public class AreaScript : MonoBehaviour
         {
             spriteRenderer.color = Color.white;
         }
+        if (currentPortal == "startPortal")
+        {
+            spriteRenderer.color = Color.white;
+        }
+        if (currentPortal == "toVenusFromMercury" && basicStationScript.completedMercuryStation)
+        {
+            spriteRenderer.color = Color.white;
+        }
+        if (currentPortal == "venusToMercury" && basicStationScript.completedVenusStation)
+        {
+            spriteRenderer.color = Color.white;
+        }
     }
     IEnumerator TeleportWait()
     {
@@ -57,6 +69,22 @@ public class AreaScript : MonoBehaviour
             basicStationScriptToActivate.wave = 1;
         }
         if (currentPortal == "mercuryToSun" && basicStationScript.completedMercuryStation && playerShipController.inMercuryArea)
+        {
+            player.transform.position = linkedPortal.position;
+        }
+
+        if (currentPortal == "startPortal")
+        {
+            player.transform.position = linkedPortal.position;
+        }
+
+        if (currentPortal == "toVenusFromMercury" && basicStationScript.completedMercuryStation && playerShipController.inMercuryArea)
+        {
+            player.transform.position = linkedPortal.position;
+            basicStationScript.startedVenusStation = true;
+            basicStationScriptToActivate.wave = 1;
+        }
+        if (currentPortal == "venusToMercury" && basicStationScript.completedVenusStation && playerShipController.inVenusArea)
         {
             player.transform.position = linkedPortal.position;
         }

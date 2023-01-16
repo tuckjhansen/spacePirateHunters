@@ -23,8 +23,7 @@ public class Weapon
 public class PlayerShipController : MonoBehaviour
 {
     private Rigidbody2D rb;
-    private float speed = 5000;
-    public float health = 100;
+    public float health = 125;
     private bool touchingSun = false;
     private bool meltAble = true;
     public Slider healthSlider;
@@ -38,7 +37,7 @@ public class PlayerShipController : MonoBehaviour
     private bool ableToGetBombed = true;
     private Animator animator;
     private bool touchingStation = false;
-    public float maxHealth = 100;
+    public float maxHealth = 125;
     private bool canHealStation = true;
     public float totalEnemiesKilled = 0;
     public float enemiesKilledBeforeDeath = 0;
@@ -47,13 +46,14 @@ public class PlayerShipController : MonoBehaviour
     public TMP_Text enemiesKilledBeforeDeathText;
     public TMP_Text moneyText;
     public Image meltingImage;
-    private bool touchingAbyss = false;
-    public Image darknessImage;
-    private bool ableToGetAbyssed = true;
     public bool touchingAreaPortal = false;
     public bool inSunArea = true;
     public bool inMercuryArea = false;
-    
+    public bool inVenusArea = false;
+    public bool inEarthArea = false;
+    public bool inMarsArea = false;
+    public Transform MapCamera;
+    private bool boostAble = true;
 
     public Weapon Weapon1 = new ("laser", true, null, true);
     public Weapon Weapon2 = new ("Bomb", false, null, false);
@@ -73,6 +73,8 @@ public class PlayerShipController : MonoBehaviour
     }
     private void Update()
     {
+        Vector3 position = new Vector3(transform.position.x, transform.position.y, -10);
+        MapCamera.position = position;
         if (inSunArea)
         {
             areaText.text = "The Sun";
@@ -80,12 +82,6 @@ public class PlayerShipController : MonoBehaviour
         if (inMercuryArea)
         {
             areaText.text = "Mercury";
-        }
-        if (touchingAbyss && ableToGetAbyssed)
-        {
-            health -= 8;
-            ableToGetAbyssed = false;
-            StartCoroutine(PainWait());
         }
         totalEnemiesKilledText.text = "Total Enemies Killed: " + totalEnemiesKilled;
         enemiesKilledBeforeDeathText.text = "Enemies Killed Before Death: " + enemiesKilledBeforeDeath;
@@ -127,34 +123,7 @@ public class PlayerShipController : MonoBehaviour
             transform.localScale = new Vector3(.5f, .5f, 1);
             enemiesKilledBeforeDeath = 0;
         }
-        if (Input.GetAxisRaw("Horizontal") > 0 && moveAble)
-        {
-            rb.velocity = new Vector2(speed * Time.deltaTime, 0f);
-            Vector3 newRotation = new Vector3(0, 0, -90);
-            transform.eulerAngles = newRotation;
-        }
-        else if (Input.GetAxisRaw("Horizontal") < 0 && moveAble)
-        {
-            rb.velocity = new Vector2(-speed * Time.deltaTime, 0f);
-            Vector3 newRotation = new Vector3(0, 0, 90);
-            transform.eulerAngles = newRotation;
-        }
-        else if (Input.GetAxisRaw("Vertical") > 0 && moveAble)
-        {
-            rb.velocity = new Vector2(0f, speed * Time.deltaTime);
-            Vector3 newRotation = new Vector3(0, 0, 0);
-            transform.eulerAngles = newRotation;
-        }
-        else if (Input.GetAxisRaw("Vertical") < 0 && moveAble)
-        {
-            rb.velocity = new Vector2(0f, -speed * Time.deltaTime);
-            Vector3 newRotation = new Vector3(0, 0, 180);
-            transform.eulerAngles = newRotation;
-        }
-        else if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0)
-        {
-            rb.velocity = new Vector2(0, 0);
-        }
+        
         if (touchingSun && meltAble)
         {
             health--;
@@ -168,7 +137,7 @@ public class PlayerShipController : MonoBehaviour
                 coolDownOver = false;
                 GameObject Laser = Instantiate(Weapon1.prefab, shootPoint.position, shootPoint.rotation);
                 Rigidbody2D rb = Laser.GetComponent<Rigidbody2D>();
-                rb.AddForce(shootPoint.up * 20, ForceMode2D.Impulse);
+                rb.AddForce(shootPoint.up * 28, ForceMode2D.Impulse);
                 StartCoroutine(ShootWait());
             }
             if (Weapon2.haveWeapon && Weapon2.isSelected)
@@ -202,11 +171,6 @@ public class PlayerShipController : MonoBehaviour
         {
             touchingStation = true;
         }
-        if (collision.tag == "Abyss")
-        {
-            touchingAbyss = true;
-            darknessImage.enabled = true;
-        }
         if (collision.tag == "Interactable")
         {
             touchingAreaPortal = true;
@@ -239,11 +203,6 @@ public class PlayerShipController : MonoBehaviour
         {
             touchingStation = false;
         }
-        if (collision.tag == "Abyss")
-        {
-            touchingAbyss = false;
-            darknessImage.enabled = false;
-        }
         if (collision.tag == "Interactable")
         {
             touchingAreaPortal = false;
@@ -261,7 +220,7 @@ public class PlayerShipController : MonoBehaviour
     {
         while (!meltAble)
         {
-            yield return new WaitForSeconds(.7f);
+            yield return new WaitForSeconds(.9f);
             meltAble = true;
         }
         while (!ableToGetLasered)
@@ -273,11 +232,6 @@ public class PlayerShipController : MonoBehaviour
         {
             yield return new WaitForSeconds(.4f);
             ableToGetBombed = true;
-        }
-        while (!ableToGetAbyssed)
-        {
-            yield return new WaitForSeconds(.3f);
-            ableToGetAbyssed = true;
         }
     }
     IEnumerator ShootWait()
@@ -312,9 +266,48 @@ public class PlayerShipController : MonoBehaviour
 
             Vector2 gravityVector = (collision.transform.position - transform.position).normalized;
 
-            float force = 10000000 / (distance * distance);
+            float force = 1004000 / (distance * distance);
 
             rb.AddForce(gravityVector * force * Time.deltaTime);
+        }
+    }
+    private void FixedUpdate()
+    {
+        if (Input.GetAxisRaw("Horizontal") > 0 && moveAble) // d key
+        {
+            Vector3 newRotation = new Vector3(0, 0, transform.rotation.z - 3.5f);
+            transform.eulerAngles += newRotation;
+        }
+        else if (Input.GetAxisRaw("Horizontal") < 0 && moveAble) // A key
+        {
+            Vector3 newRotation = new Vector3(0, 0, transform.rotation.z + 3.5f);
+            transform.eulerAngles += newRotation;
+        }
+        if (Input.GetAxisRaw("Vertical") == 1 && moveAble)
+        {
+            transform.Translate(transform.up * 17 * Time.deltaTime, Space.World);
+        }
+        else if (Input.GetAxisRaw("Vertical") == -1 && moveAble)
+        {
+            transform.Translate(-transform.up * 17 * Time.deltaTime, Space.World);
+        }
+        else if (Input.GetAxisRaw("Vertical") == 0)
+        {
+            rb.velocity = Vector3.zero;
+        }
+        /*if (Input.GetKeyDown(KeyCode.Z) && moveAble && boostAble)
+        {
+            transform.Translate(transform.up * 25, Space.World);
+            boostAble = false;
+            StartCoroutine(BoostWait());
+        }*/
+    }
+    IEnumerator BoostWait()
+    {
+        while (!boostAble)
+        {
+            yield return new WaitForSeconds(3f);
+            boostAble = true;
         }
     }
 }

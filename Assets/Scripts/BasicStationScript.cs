@@ -22,7 +22,9 @@ public class BasicStationScript : MonoBehaviour
 {
     public bool sunStation;
     public bool mercuryStation;
+    public bool venusStation;
     public bool startedMercuryStation;
+    public bool startedVenusStation;
     public float wave = 1;
 
     public GameObject standardEnemyPrefab;
@@ -35,6 +37,8 @@ public class BasicStationScript : MonoBehaviour
     private BoxCollider2D healCollider;
     public bool completedSunStation = false;
     public bool completedMercuryStation = false;
+    public bool completedVenusStation = false;
+
     public TMP_Text waveText;
 
     public List<GameObject> enemies = new List<GameObject>();
@@ -160,6 +164,71 @@ public class BasicStationScript : MonoBehaviour
                 completedMercuryStation = true;
             }
 
+        }
+        else if (venusStation && !completedVenusStation && startedVenusStation)
+        {
+            waveText.text = "Wave: " + (wave - 1);
+            bool allInactive = enemies.All(enemy => !enemy.activeSelf);
+            if (wave == 1)
+            {
+                wave++;
+                MyWaveConfig waveConfig = new MyWaveConfig();
+                waveConfig.numberOfStandardEnemies = 3;
+                waveConfig.numberOfBomberEnemies = 1;
+                waveConfig.numberOfEngineerEnemies = 1;
+                handleWave(waveConfig);
+            }
+            else if (wave == 2 && allInactive)
+            {
+                wave++;
+                MyWaveConfig waveConfig = new MyWaveConfig();
+                waveConfig.numberOfStandardEnemies = 3;
+                waveConfig.numberOfBomberEnemies = 2;
+                waveConfig.numberOfEngineerEnemies = 1;
+                handleWave(waveConfig);
+            }
+            else if (wave == 3 && allInactive)
+            {
+                wave++;
+                MyWaveConfig waveConfig = new MyWaveConfig();
+                waveConfig.numberOfStandardEnemies = 3;
+                waveConfig.numberOfBomberEnemies = 3;
+                waveConfig.numberOfEngineerEnemies = 2;
+                handleWave(waveConfig);
+            }
+            else if (wave == 4 && allInactive)
+            {
+                wave++;
+                MyWaveConfig waveConfig = new MyWaveConfig();
+                waveConfig.numberOfStandardEnemies = 4;
+                waveConfig.numberOfBomberEnemies = 3;
+                waveConfig.numberOfEngineerEnemies = 1;
+                handleWave(waveConfig);
+            }
+            else if (wave == 5 && allInactive)
+            {
+                wave++;
+                MyWaveConfig waveConfig = new MyWaveConfig();
+                waveConfig.numberOfStandardEnemies = 4;
+                waveConfig.numberOfBomberEnemies = 3;
+                waveConfig.numberOfEngineerEnemies = 3;
+                handleWave(waveConfig);
+            }
+            else if (wave == 6 && allInactive)
+            {
+                foreach (GameObject go in enemies)
+                {
+                    Destroy(go);
+                }
+                enemies.Clear();
+                spriteRendererSpaceStation.sprite = goodSpaceStationSprite;
+                spriteRendererSpaceStation.color = Color.white;
+                wave++;
+                transform.localScale = new Vector3(3, 3, 1);
+                edgeCollider.enabled = false;
+                healCollider.enabled = true;
+                completedVenusStation = true;
+            }
         }
     }
 
