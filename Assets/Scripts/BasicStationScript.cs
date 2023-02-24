@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -87,10 +86,10 @@ public class BasicStationScript : MonoBehaviour
             healCollider.enabled = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.F))
+        /*if (Input.GetKeyDown(KeyCode.F))
         {
             wave++;
-        }
+        }*/
         if (sunStation && !completedSunStation)
         {
             if (wave >= 5)

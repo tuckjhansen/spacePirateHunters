@@ -1,9 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Linq;
 
 public class Weapon
 {
@@ -54,7 +52,7 @@ public class PlayerShipController : MonoBehaviour
     public bool inEarthArea = false;
     public bool inMarsArea = false;
     public Transform MapCamera;
-    private bool boostAble = true;
+    /*private bool boostAble = true;*/
 
     public Weapon Weapon1 = new ("laser", true, null, true);
     public Weapon Weapon2 = new ("Bomb", false, null, false);
@@ -108,13 +106,13 @@ public class PlayerShipController : MonoBehaviour
         GameObject[] EnemiesCount = GameObject.FindGameObjectsWithTag("Enemy");
         enemyCount = EnemiesCount.Length;
         EnemiesRemainingText.text = "Pirates Remaining: " + enemyCount;
-        if (Input.GetKeyDown(KeyCode.K))
+        /*if (Input.GetKeyDown(KeyCode.K))
         {
             foreach (GameObject go in EnemiesCount)
             {
                 go.SetActive(false);
             }
-        }
+        }*/
         if (touchingEnemyLaser && ableToGetLasered)
         {
             health -= 4;
@@ -328,19 +326,19 @@ public class PlayerShipController : MonoBehaviour
         {
             rb.velocity = Vector3.zero;
         }
-        if (Input.GetKeyDown(KeyCode.Z) && moveAble && boostAble)
+        /*if (Input.GetKeyDown(KeyCode.Z) && moveAble && boostAble)
         {
             transform.Translate(transform.up * 45, Space.World);
             boostAble = false;
             StartCoroutine(BoostWait());
-        }
+        }*/
     }
-    IEnumerator BoostWait()
+    /*IEnumerator BoostWait()
     {
         while (!boostAble)
         {
             yield return new WaitForSeconds(.2f);
             boostAble = true;
         }
-    }
+    }*/
 }

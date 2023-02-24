@@ -138,9 +138,11 @@ Library: lib_burst_generated
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\UnityEngine.UI.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.VisualScripting.Flow.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Mathematics.dll
+--root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Services.CloudSave.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Services.Core.Telemetry.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.VisualScripting.State.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.VisualScripting.Core.dll
+--root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Services.Authentication.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Services.Core.Environments.Internal.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Burst.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.2D.Animation.Runtime.dll
@@ -309,9 +311,11 @@ Library: lib_burst_generated
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\UnityEngine.UI.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.VisualScripting.Flow.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Mathematics.dll
+--root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Services.CloudSave.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Services.Core.Telemetry.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.VisualScripting.State.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.VisualScripting.Core.dll
+--root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Services.Authentication.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Services.Core.Environments.Internal.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.Burst.dll
 --root-assembly=C:\Users\tuckj\code\Unity\SpacePirateHuntersUNE\Temp\StagingArea\Data\Managed\Unity.2D.Animation.Runtime.dll
