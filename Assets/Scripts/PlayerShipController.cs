@@ -47,7 +47,8 @@ public class PlayerShipController : MonoBehaviour
     public TMP_Text moneyText;
     public Image meltingImage;
     public bool touchingAreaPortal = false;
-    public bool inSunArea = true;
+    public bool touchingAdvanceAreaPortal = false;
+    public bool inSunArea = false;
     public bool inMercuryArea = false;
     public bool inVenusArea = false;
     public bool inEarthArea = false;
@@ -79,9 +80,17 @@ public class PlayerShipController : MonoBehaviour
         {
             areaText.text = "The Sun";
         }
-        if (inMercuryArea)
+        else if (inMercuryArea)
         {
             areaText.text = "Mercury";
+        }
+        else if (inVenusArea)
+        {
+            areaText.text = "Venus";
+        }
+        else if (inEarthArea)
+        {
+            areaText.text = "Earth";
         }
         totalEnemiesKilledText.text = "Total Enemies Killed: " + totalEnemiesKilled;
         enemiesKilledBeforeDeathText.text = "Enemies Killed Before Death: " + enemiesKilledBeforeDeath;
@@ -174,6 +183,10 @@ public class PlayerShipController : MonoBehaviour
         if (collision.tag == "Interactable")
         {
             touchingAreaPortal = true;
+            if (collision.gameObject.name == "ToMercuryFromSun" || collision.gameObject.name == "ToVenusFromMercury" || collision.gameObject.name == "ToEarthFromVenus")
+            {
+                touchingAdvanceAreaPortal = true;
+            }
         }
         if (collision.gameObject.name == "SunArea")
         {
@@ -182,6 +195,14 @@ public class PlayerShipController : MonoBehaviour
         if (collision.gameObject.name == "MercuryArea")
         {
             inMercuryArea = true;
+        }
+        if (collision.gameObject.name == "VenusArea")
+        {
+            inVenusArea = true;
+        }
+        if (collision.gameObject.name == "EarthArea")
+        {
+            inEarthArea = true;
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
@@ -206,6 +227,10 @@ public class PlayerShipController : MonoBehaviour
         if (collision.tag == "Interactable")
         {
             touchingAreaPortal = false;
+            if (collision.gameObject.name == "ToMercuryFromSun" || collision.gameObject.name == "ToVenusFromMercury" || collision.gameObject.name == "ToEarthFromVenus")
+            {
+                touchingAdvanceAreaPortal = false;
+            }
         }
         if (collision.gameObject.name == "SunArea")
         {
@@ -214,6 +239,14 @@ public class PlayerShipController : MonoBehaviour
         if (collision.gameObject.name == "MercuryArea")
         {
             inMercuryArea = false;
+        }
+        if (collision.gameObject.name == "VenusArea")
+        {
+            inVenusArea = false;
+        }
+        if (collision.gameObject.name == "EarthArea")
+        {
+            inEarthArea = false;
         }
     }
     IEnumerator PainWait()
@@ -266,7 +299,7 @@ public class PlayerShipController : MonoBehaviour
 
             Vector2 gravityVector = (collision.transform.position - transform.position).normalized;
 
-            float force = 1004000 / (distance * distance);
+            float force = 1003000 / (distance * distance);
 
             rb.AddForce(gravityVector * force * Time.deltaTime);
         }
@@ -295,18 +328,18 @@ public class PlayerShipController : MonoBehaviour
         {
             rb.velocity = Vector3.zero;
         }
-        /*if (Input.GetKeyDown(KeyCode.Z) && moveAble && boostAble)
+        if (Input.GetKeyDown(KeyCode.Z) && moveAble && boostAble)
         {
-            transform.Translate(transform.up * 25, Space.World);
+            transform.Translate(transform.up * 45, Space.World);
             boostAble = false;
             StartCoroutine(BoostWait());
-        }*/
+        }
     }
     IEnumerator BoostWait()
     {
         while (!boostAble)
         {
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(.2f);
             boostAble = true;
         }
     }
