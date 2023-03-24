@@ -1,78 +1,85 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Inventory : MonoBehaviour
 {
     public List<Item> items = new List<Item>();
-    public Equipment equippedArmor;
-    public Equipment equippedWeapon;
-    private bool inventoryOpen = false;
+    public bool inventoryOpen = false;
     private bool inventoryOpenable = true;
     public GameObject inventory;
     public GameObject HUD;
     private PlayerShipController playerShipController;
-    public class Item
+    private MiniShopScript miniShopScript;
+    public static Inventory Instance;
+    public Transform ItemContent;
+    public GameObject InventoryItem;
+    private ShopScript shopScript;
+    private void Awake()
     {
-        public string name;
-        public Sprite sprite;
+        Instance = this; 
     }
-    public class Equipment : Item
+
+    public void Add(Item item)
     {
-        public int defense;
-        public int attack;
+        items.Add(item);
+    }
+    public void Remove(Item item)
+    {
+        items.Remove(item);
+    }
+    public void ListItems()
+    {
+        foreach (var item in items) 
+        {
+            GameObject obj = Instantiate(InventoryItem, ItemContent);
+            var itemName = obj.transform.Find("ItemName").GetComponent<TMP_Text>();
+            var itemIcon = obj.transform.Find("ItemIcon").GetComponent<Image>();
+
+            itemName.text = item.name;
+            itemIcon.sprite = item.icon;
+        }
     }
     private void Start()
     {
         playerShipController = FindObjectOfType<PlayerShipController>();
+        miniShopScript = FindObjectOfType<MiniShopScript>();
+        shopScript = FindObjectOfType<ShopScript>();
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && !inventoryOpen && inventoryOpenable && !playerShipController.touchingAdvanceAreaPortal && !playerShipController.touchingAreaPortal)
+        if (Input.GetKeyDown(KeyCode.E) && !inventoryOpen && inventoryOpenable && !playerShipController.touchingAdvanceAreaPortal && !playerShipController.touchingAreaPortal && !miniShopScript.touchingShop && !shopScript.touchingPlayer)
         {
-            inventoryOpen = true;
-            inventoryOpenable = false;
-            HUD.SetActive(false);
-            inventory.SetActive(true);
-            StartCoroutine(inventoryOpenWait());
+            OpenInventory();
         }
         if (Input.GetKeyDown(KeyCode.E) && inventoryOpen && inventoryOpenable && !playerShipController.touchingAdvanceAreaPortal && !playerShipController.touchingAreaPortal)
         {
-            inventoryOpen = false;
-            inventoryOpenable = false;
-            HUD.SetActive(true);
-            inventory.SetActive(false);
-            StartCoroutine(inventoryOpenWait());
+            CloseInventory();
         }
     }
-    /*public void EquipItem(Equipment equipment)
+    public void OpenInventory()
     {
-        if (equipment.GetType() == typeof(Armor))
-        {
-            equippedArmor = equipment;
-            Debug.Log("Armor equipped: " + equipment.name);
-        }
-        else if (equipment.GetType() == typeof(Weapon))
-        {
-            equippedWeapon = equipment;
-            Debug.Log("Weapon equipped: " + equipment.name);
-        }
+        inventoryOpen = true;
+        inventoryOpenable = false;
+        HUD.SetActive(false);
+        inventory.SetActive(true);
+        ListItems();
+        StartCoroutine(InventoryOpenWait());
+        Time.timeScale = 0.0001f;
     }
-
-    public void UnequipItem(Equipment equipment)
+    public void CloseInventory()
     {
-        if (equipment.GetType() == typeof(Armor) && equippedArmor == equipment)
-        {
-            equippedArmor = null;
-            Debug.Log("Armor unequipped: " + equipment.name);
-        }
-        else if (equipment.GetType() == typeof(Weapon) && equippedWeapon == equipment)
-        {
-            equippedWeapon = null;
-            Debug.Log("Weapon unequipped: " + equipment.name);
-        }
-    }*/
-    IEnumerator inventoryOpenWait()
+        inventoryOpen = false;
+        inventoryOpenable = false;
+        HUD.SetActive(true);
+        inventory.SetActive(false);
+        StartCoroutine(InventoryOpenWait());
+        Time.timeScale = 1f;
+    }
+    
+    IEnumerator InventoryOpenWait()
     {
         yield return new WaitForSeconds(.1f);
         inventoryOpenable = true;

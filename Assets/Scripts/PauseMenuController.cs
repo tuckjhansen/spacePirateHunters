@@ -5,16 +5,22 @@ public class PauseMenuController : MonoBehaviour
 {
     private bool paused = false;
     public GameObject pauseMenu;
+    private Inventory inventoryScript;
+
+    private void Start()
+    {
+        inventoryScript = FindObjectOfType<Inventory>();
+    }
 
     void Update()
     {
-        if (!paused)
+        if (!paused && !inventoryScript.inventoryOpen)
         {
             pauseMenu.SetActive(false);
             Time.timeScale = 1f;
 
         }
-        if (paused)
+        if (paused && !inventoryScript.inventoryOpen)
         {
             pauseMenu.SetActive(true);
             Time.timeScale = 0f;

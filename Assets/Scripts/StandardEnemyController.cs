@@ -15,6 +15,8 @@ public class StandardEnemyController : MonoBehaviour
     public Vector3 direction;
     private Animator animator;
     private PlayerShipController playerShipController;
+    private float damage;
+    private MiniShopScript miniShopScript;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -22,6 +24,7 @@ public class StandardEnemyController : MonoBehaviour
         playerShipController = player.GetComponent<PlayerShipController>();
         animator = GetComponent<Animator>();
         spaceStation = GameObject.Find("SpaceStation");
+        miniShopScript = FindObjectOfType<MiniShopScript>();
     }
 
     void Update()
@@ -34,10 +37,6 @@ public class StandardEnemyController : MonoBehaviour
             direction = (spaceStation.transform.position - transform.position);
             rb.velocity = Vector2.MoveTowards(rb.velocity, direction, 7 * Time.deltaTime);
             distance = Vector2.Distance(transform.position, spaceStation.transform.position);
-            if (distance < 6)
-            {
-                gameObject.SetActive(false);
-            }
         }
         if (playerShipController.health > 0)
         {
@@ -78,7 +77,8 @@ public class StandardEnemyController : MonoBehaviour
     {
         if (collision.tag == "Laser")
         {
-            health -= 5;
+            damage = miniShopScript.laser.level + 5;
+            health -= damage;
         }
     }
     IEnumerator ShootWait()

@@ -12,12 +12,15 @@ public class SentryController : MonoBehaviour
     public GameObject laserPrefab;
     private Animator animator;
     private PlayerShipController playerShipController;
+    private float damage;
+    private MiniShopScript miniShopScript;
 
     void Start()
     {
         player = GameObject.FindWithTag("Player");
         playerShipController = player.GetComponent<PlayerShipController>();
         animator = GetComponent<Animator>();
+        miniShopScript = FindObjectOfType<MiniShopScript>();
     }
 
     void Update()
@@ -62,7 +65,8 @@ public class SentryController : MonoBehaviour
     {
         if (collision.tag == "Laser")
         {
-            health -= 5;
+            damage = miniShopScript.laser.level + 5;
+            health -= damage;
         }
     }
 }

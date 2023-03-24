@@ -16,6 +16,8 @@ public class BombEnemyController : MonoBehaviour
     private float randomAttack;
     private Animator animator;
     private PlayerShipController playerShipController;
+    private float damage;
+    private MiniShopScript miniShopScript;
 
     void Start()
     {
@@ -23,17 +25,11 @@ public class BombEnemyController : MonoBehaviour
         player = GameObject.FindWithTag("Player");
         playerShipController = player.GetComponent<PlayerShipController>();
         animator = GetComponent<Animator>();
+        miniShopScript = FindObjectOfType<MiniShopScript>();
     }
 
     void Update()
     {
-        if (playerShipController.health <= 0)
-        {
-            alive = false;
-            animator.enabled = true;
-            rb.constraints = RigidbodyConstraints2D.FreezeAll;
-            StartCoroutine(ExplosionWait());
-        }
         Vector3 diff = (player.transform.position - transform.position);
         float angle = Mathf.Atan2(diff.y, diff.x);
         transform.rotation = Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg);
@@ -81,7 +77,8 @@ public class BombEnemyController : MonoBehaviour
     {
         if (collision.tag == "Laser")
         {
-            health -= 5;
+            damage = miniShopScript.laser.level + 5;
+            health -= damage;
         }
     }
     IEnumerator ShootWait()

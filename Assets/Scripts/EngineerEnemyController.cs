@@ -16,6 +16,8 @@ public class EngineerEnemyController : MonoBehaviour
     private float randomAttack;
     private Animator animator;
     private PlayerShipController playerShipController;
+    private float damage;
+    private MiniShopScript miniShopScript;
 
     void Start()
     {
@@ -23,6 +25,7 @@ public class EngineerEnemyController : MonoBehaviour
         player = GameObject.FindWithTag("Player");
         playerShipController = player.GetComponent<PlayerShipController>();
         animator = GetComponent<Animator>();
+        miniShopScript = FindObjectOfType<MiniShopScript>();
     }
 
     void Update()
@@ -74,7 +77,8 @@ public class EngineerEnemyController : MonoBehaviour
     {
         if (collision.tag == "Laser")
         {
-            health -= 5;
+            damage = miniShopScript.laser.level + 5;
+            health -= damage;
         }
     }
     IEnumerator ShootWait()

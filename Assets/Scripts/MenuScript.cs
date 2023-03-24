@@ -29,6 +29,7 @@ public class MenuScript : MonoBehaviour
     private AreaScript areaScript;
     public TMP_Text continueAreaText;
     private string area;
+    private float moneyFromDB;
 
     private void Start()
     {
@@ -55,15 +56,20 @@ public class MenuScript : MonoBehaviour
             StartCoroutine(GetUser());
         }
     }
-    public class usernameJson
+    public class UsernameJson
     {
         public string sk;
-        public string saveData;
+        public SaveData saveData;
+    }
+    public class SaveData
+    {
+        public string level;
+        public float money;
     }
 
     void ReplyRegister(string returnData)
     {
-        usernameJson json = JsonConvert.DeserializeObject<usernameJson>(returnData);
+        UsernameJson json = JsonConvert.DeserializeObject<UsernameJson>(returnData);
         if (json == null)
         {
             logInButton.interactable = true;
@@ -86,7 +92,8 @@ public class MenuScript : MonoBehaviour
     }
     void ReplyLogIn(string returnData)
     {
-        usernameJson json = JsonConvert.DeserializeObject<usernameJson>(returnData);
+        UsernameJson json = JsonConvert.DeserializeObject<UsernameJson>(returnData);
+        Debug.Log("json in replyLogin " + json);
         if (json == null)
         {
             logInErrorText.text = "Username '" + username + "' does not exist";
@@ -102,8 +109,9 @@ public class MenuScript : MonoBehaviour
             if (json.saveData != null)
             {
                 continueButton.interactable = true;
-                continueAreaText.text = json.saveData.ToString();
-                area = json.saveData;
+                continueAreaText.text = json.saveData.level;
+                area = json.saveData.level;
+                moneyFromDB = json.saveData.money;
             }
         }
     }
@@ -135,7 +143,7 @@ public class MenuScript : MonoBehaviour
         }
         else
         {
-            Debug.Log("Received: " + uwr.downloadHandler.text);
+            Debug.Log("Received: " + uwr.downloadHandler.text + " type " + uwr.downloadHandler.text.GetType());
             if (registerMenuOpen)
             {
                 ReplyRegister(uwr.downloadHandler.text);
@@ -200,7 +208,7 @@ public class MenuScript : MonoBehaviour
         yield return new WaitForSeconds(.15f);
         areaScript = FindObjectOfType<AreaScript>();
         areaScript.username = username;
-        areaScript.LoadUser(area);
+        areaScript.LoadUser(area, moneyFromDB);
         Destroy(gameObject);
     }
 }
