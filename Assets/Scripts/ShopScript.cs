@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,22 +29,42 @@ public class ItemClass
     public Button buyItemButton;
     public Image buyItemButtonImage;
 }
+
 public class ShopScript : MonoBehaviour
 {
+    
     public bool touchingPlayer = false;
     public GameObject ShopUI;
     public GameObject HUD;
     private bool shopOpen = false;
-    public ItemClass bomb = new ItemClass("bomb", "Shoots a slow projectile that targets enemies doing a lot of damage", 180, false, null, null, null, null, null);
+    public ItemClass bomb = new ("bomb", "Shoots a slow projectile that targets enemies doing a lot of damage", 180, false, null, null, null, null, null);
     public Transform itemList;
     public GameObject itemPrefab;
     public GameObject itemListGameobject;
     private PlayerShipController playerShipController;
     public TMP_Text moneyText;
-    public GameObject worldItemPrefab;
+    public Item laserItem;
+    public Item bombItem;
+    public Item steelHullItem;
+    private Inventory inventory;
+    public List<Item> Itemslist = new ();
+    private MiniShopScript miniShopScript;
+
     void Start()
     {
         playerShipController = FindObjectOfType<PlayerShipController>();
+        miniShopScript = FindObjectOfType<MiniShopScript>();
+        inventory = FindObjectOfType<Inventory>();
+        Itemslist.Add(laserItem);
+        Itemslist.Add(bombItem);
+        Itemslist.Add(steelHullItem);
+        foreach (Item item in Itemslist) 
+        { 
+            if (item.haveItem)
+            {
+                inventory.AddItem(item);
+            }
+        }
     }
     void CreateItemSlots(ItemClass item)
     {
@@ -62,9 +81,36 @@ public class ShopScript : MonoBehaviour
     }
     void BuyItem(ItemClass item)
     {
-        item.boughtItem = true;
-        CloseShop();
-        Instantiate(worldItemPrefab, transform);
+        foreach (Item iteminItemList in Itemslist)
+        {
+            if (iteminItemList.itemName == item.name)
+            {
+                item.boughtItem = true;
+                playerShipController.money -= item.cost;
+                foreach (Weapon weapon in playerShipController.attachmentWeaponList)
+                {
+                    if (weapon.name == item.name)
+                    {
+                        weapon.haveWeapon = true;
+                    }
+                }
+                foreach (UpgradeClass weapon in miniShopScript.upgradeClassList)
+                {
+                    if (weapon.name == item.name)
+                    {
+                        weapon.haveItem = true;
+                    }
+                }
+                CloseShop();
+                inventory.AddItem(iteminItemList);
+                break;
+            }
+            else
+            {
+                Debug.LogWarning("Error in finding item. Item does not exist. (Shopscript.C#) Item parameter name: " + item.name + " Item Item name: " + iteminItemList.itemName);
+            }
+        }
+
     }
 
     void Update()

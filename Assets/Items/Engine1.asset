@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e45cb4965b049f418e79a76763569c0, type: 3}
   m_Name: Engine1
   m_EditorClassIdentifier: 
-  itemName: Engine
+  itemName: engine
   icon: {fileID: 0}
+  haveItem: 0
+  occupation: thrust

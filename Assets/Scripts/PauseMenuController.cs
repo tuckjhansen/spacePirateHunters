@@ -6,6 +6,8 @@ public class PauseMenuController : MonoBehaviour
     private bool paused = false;
     public GameObject pauseMenu;
     private Inventory inventoryScript;
+    public GameObject mainPauseMenu;
+    public GameObject helpPauseMenu;
 
     private void Start()
     {
@@ -37,5 +39,15 @@ public class PauseMenuController : MonoBehaviour
     public void Resume()
     {
         paused = false;
+    }
+    public void Help()
+    {
+        mainPauseMenu.SetActive(false);
+        helpPauseMenu.SetActive(true);
+    }
+    public void Back()
+    {
+        mainPauseMenu.SetActive(true);
+        helpPauseMenu.SetActive(false);
     }
 }

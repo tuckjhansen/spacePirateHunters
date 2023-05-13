@@ -25,8 +25,15 @@ public class AreaScript : MonoBehaviour
     public string level = "Tutorial";
     private int maxAreaInt = 0;
     private int enemyCount;
+    public GameObject savingSymbol;
+    private MiniShopScript miniShopScript;
+    private Inventory inventoryScript;
+    private ShopScript shopScript;
     void Start()
     {
+        miniShopScript = FindObjectOfType<MiniShopScript>();
+        shopScript = FindObjectOfType<ShopScript>();
+        inventoryScript = FindObjectOfType<Inventory>();
         playerShipController = FindObjectOfType<PlayerShipController>();
         player = GameObject.Find("PlayerShip");
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -49,7 +56,6 @@ public class AreaScript : MonoBehaviour
             StartCoroutine(TeleportWait());
             canTeleport = false;
             TeleportPlayer();
-            StartCoroutine(SaveUser());
         }
 
 
@@ -120,16 +126,22 @@ public class AreaScript : MonoBehaviour
             player.transform.position = linkedPortal.position;
             mercuryStation.startedMercuryStation = true;
             mercuryStation.wave = 1;
+            StartCoroutine(SaveUser());
+            savingSymbol.SetActive(true);
         }
         else if (currentPortal == "mercuryToSun" && mercuryStation.completedMercuryStation && playerShipController.inMercuryArea && !playerShipController.touchingAdvanceAreaPortal)
         {
             player.transform.position = linkedPortal.position;
+            StartCoroutine(SaveUser());
+            savingSymbol.SetActive(true);
         }
 
 
         else if (currentPortal == "startPortal" && !playerShipController.touchingAdvanceAreaPortal && notInArea)
         {
             player.transform.position = linkedPortal.position;
+            StartCoroutine(SaveUser());
+            savingSymbol.SetActive(true);
         }
 
 
@@ -138,10 +150,14 @@ public class AreaScript : MonoBehaviour
             player.transform.position = linkedPortal.position;
             venusStation.startedVenusStation = true;
             venusStation.wave = 1;
+            StartCoroutine(SaveUser());
+            savingSymbol.SetActive(true);
         }
         else if (currentPortal == "venusToMercury" && venusStation.completedVenusStation && playerShipController.inVenusArea && !playerShipController.touchingAdvanceAreaPortal)
         {
             player.transform.position = linkedPortal.position;
+            StartCoroutine(SaveUser());
+            savingSymbol.SetActive(true);
         }
 
 
@@ -150,10 +166,14 @@ public class AreaScript : MonoBehaviour
             player.transform.position = linkedPortal.position;
             earthStation.startedEarthStation = true;
             earthStation.wave = 1;
+            StartCoroutine(SaveUser());
+            savingSymbol.SetActive(true);
         }
         else if (currentPortal == "earthToVenus" && earthStation.completedEarthStation && playerShipController.inEarthArea && !playerShipController.touchingAdvanceAreaPortal)
         {
             player.transform.position = linkedPortal.position;
+            StartCoroutine(SaveUser());
+            savingSymbol.SetActive(true);
         }
     }
     public class UpdateJson
@@ -168,9 +188,14 @@ public class AreaScript : MonoBehaviour
     {
         public string level;
         public float money;
+        public bool haveBomb;
+        public float laserLevel;
+        public float bombLevel;
+        public float steelHullLevel;
     }
     IEnumerator SaveUser()
     {
+        Debug.Log(username + "username in AreaScript");
         string uri = "https://aur9yy6bag.execute-api.us-west-2.amazonaws.com/v1/users";
 
         UpdateJson updateData = new UpdateJson();
@@ -179,6 +204,10 @@ public class AreaScript : MonoBehaviour
         SaveData saveData = new SaveData();
         saveData.level = level;
         saveData.money = playerShipController.money;
+        saveData.haveBomb = playerShipController.bombWeaponAttachment.haveWeapon;
+        saveData.bombLevel = miniShopScript.bomb.level;
+        saveData.laserLevel = miniShopScript.laser.level;
+        saveData.steelHullLevel = miniShopScript.hull.level;
         updateData.saveData = saveData;
         string json = JsonConvert.SerializeObject(updateData);
 
@@ -188,18 +217,62 @@ public class AreaScript : MonoBehaviour
         if (uwr.result == UnityWebRequest.Result.ConnectionError)
         {
             Debug.Log("Error While Sending: " + uwr.error);
+            savingSymbol.SetActive(false);
         }
         else
         {
             Debug.Log("Received: " + uwr.downloadHandler.text);
+            savingSymbol.SetActive(false);
         }
 
     }
-    public void LoadUser(string area, float money)
+    /*IEnumerator HackPowerschool()
+    {
+        float correctUsername = Random.Range(0, 999);
+        for (int i = 0; i <= 999; i++)
+        {
+            if (i <= 9)
+            {
+                string username = "Han00" + i.ToString();
+                string password = "Han";
+                if (correctUsername == i)
+                {
+                    Debug.Log(username + "Correct Username");
+                }
+            }
+            else if (i <= 99)
+            {
+                string username = "Han0" + i.ToString();
+                string password = "Han";
+                if (correctUsername == i)
+                {
+                    Debug.Log(username + "Correct Username");
+                }
+            }
+            else if (i <= 999)
+            {
+                string username = "Han" + i.ToString();
+                string password = "Han";
+                if (correctUsername == i)
+                {
+                    Debug.Log(username + "Correct Username");
+                }
+            }
+        }
+    }*/
+    public void LoadUser(string area, float money, bool havebomb, float laserlevel, float bomblevel, float steelhulllevel)
     {
         GameObject[] EnemiesCount = GameObject.FindGameObjectsWithTag("Enemy");
         enemyCount = EnemiesCount.Length;
         playerShipController.money = money;
+        miniShopScript.laser.level = laserlevel;
+        miniShopScript.hull.level = steelhulllevel;
+        miniShopScript.bomb.level = bomblevel;
+        playerShipController.bombWeaponAttachment.haveWeapon = havebomb;
+        if (havebomb == true)
+        {
+            inventoryScript.AddItem(shopScript.bombItem);
+        }
         foreach (GameObject go in EnemiesCount)
         {
             go.SetActive(false);
@@ -250,22 +323,29 @@ public class AreaScript : MonoBehaviour
         if (!sunStation.completedSunStation)
         {
             player.transform.position = new Vector2(-135, 0);
+            sunStation.wave = 1;
         }
-        if (sunStation.completedSunStation)
+        else if (!mercuryStation.completedMercuryStation)
         {
             player.transform.position = new Vector2(108, -120);
+            mercuryStation.wave = 1;
+            mercuryStation.startedMercuryStation = false;
         }
-        if (mercuryStation.completedMercuryStation)
+        else if (!venusStation.completedVenusStation)
         {
             player.transform.position = new Vector2(476, -132);
+            venusStation.wave = 1;
+            venusStation.startedVenusStation = false;
         }
-        if (venusStation.completedVenusStation)
+        else if (!earthStation.completedEarthStation)
         {
             player.transform.position = new Vector2(922, -182);
+            earthStation.wave = 1;
+            earthStation.startedEarthStation = false;
         }
-        if (earthStation.completedEarthStation)
+        else if (earthStation.completedEarthStation)
         {
             player.transform.position = new Vector2(1332, -175);
-        }   
+        }
     }
 }

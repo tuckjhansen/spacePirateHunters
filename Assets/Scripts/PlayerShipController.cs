@@ -3,18 +3,20 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Unity.Mathematics;
+using NUnit.Framework;
+using System.Collections.Generic;
 
 public class Weapon
 {
-    public Weapon(string name, bool isSelected, GameObject prefab, bool haveWeapon)
+    public Weapon(string name, bool equiped, GameObject prefab, bool haveWeapon)
     {
         this.name = name;
-        this.isSelected = isSelected;
+        this.equiped = equiped;
         this.prefab = prefab;
         this.haveWeapon = haveWeapon;
     }
     public string name;
-    public bool isSelected;
+    public bool equiped;
     public GameObject prefab;
     public bool haveWeapon;
 }
@@ -56,8 +58,9 @@ public class PlayerShipController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private bool boostAble = true;
 
-    public Weapon Weapon1 = new ("laser", true, null, true);
-    public Weapon Weapon2 = new ("Bomb", false, null, false);
+    public Weapon laserWeaponAttachment = new ("laser", true, null, true);
+    public Weapon bombWeaponAttachment = new ("bomb", false, null, false);
+    public string weaponEquiped;
     public GameObject LaserPrefab;
     private AreaScript areaScript;
 
@@ -67,25 +70,45 @@ public class PlayerShipController : MonoBehaviour
     public Sprite playerShip;
     private bool dieAble = true;
     private MiniShopScript miniShopScript;
+    public List<Weapon> attachmentWeaponList = new();
+    public GameObject playerBomb;
+    public GameObject deadText;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        Weapon1.prefab = LaserPrefab;
+        laserWeaponAttachment.prefab = LaserPrefab;
+        bombWeaponAttachment.prefab = playerBomb;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         spriteRenderer = GetComponent<SpriteRenderer>();
         areaScript = FindObjectOfType<AreaScript>();
         animator = GetComponent<Animator>();
         maxHealth = health;
         miniShopScript = FindObjectOfType<MiniShopScript>();
+        attachmentWeaponList.Add(laserWeaponAttachment);
+        attachmentWeaponList.Add(bombWeaponAttachment);
     }
     private void Update()
     {
+        foreach (Weapon weapon in attachmentWeaponList) 
+        {
+            if (weaponEquiped == weapon.name)
+            {
+                weapon.equiped = true;
+                foreach (Weapon weaponNotEquiped in attachmentWeaponList)
+                {
+                    if (weaponNotEquiped.name != weapon.name)
+                    {
+                        weaponNotEquiped.equiped = false;
+                    }
+                }
+            }
+        }
         if (health <= 0)
         {
             Respawn();
         }
-        Vector3 position = new Vector3(transform.position.x, transform.position.y, -10);
+        Vector3 position = new (transform.position.x, transform.position.y, -10);
         MapCamera.position = position;
         if (inSunArea)
         {
@@ -119,13 +142,13 @@ public class PlayerShipController : MonoBehaviour
         GameObject[] EnemiesCount = GameObject.FindGameObjectsWithTag("Enemy");
         enemyCount = EnemiesCount.Length;
         EnemiesRemainingText.text = "Pirates Remaining: " + enemyCount;
-        if (Input.GetKeyDown(KeyCode.K))
+        /*if (Input.GetKeyDown(KeyCode.K))
         {
             foreach (GameObject go in EnemiesCount)
             {
                 go.SetActive(false);
             }
-        }
+        }*/
         if (touchingEnemyLaser && ableToGetLasered)
         {
             float damage = 5;
@@ -154,17 +177,19 @@ public class PlayerShipController : MonoBehaviour
         }
         if (Input.GetButton("Shoot") && moveAble && coolDownOver)
         {
-            if (Weapon1.haveWeapon && Weapon1.isSelected)
+            if (laserWeaponAttachment.haveWeapon && laserWeaponAttachment.equiped)
             {
                 coolDownOver = false;
-                GameObject Laser = Instantiate(Weapon1.prefab, shootPoint.position, shootPoint.rotation);
+                GameObject Laser = Instantiate(laserWeaponAttachment.prefab, shootPoint.position, shootPoint.rotation);
                 Rigidbody2D rb = Laser.GetComponent<Rigidbody2D>();
                 rb.AddForce(shootPoint.up * 28, ForceMode2D.Impulse);
-                StartCoroutine(ShootWait());
+                StartCoroutine(ShootWait("Laser"));
             }
-            if (Weapon2.haveWeapon && Weapon2.isSelected)
+            if (bombWeaponAttachment.haveWeapon && bombWeaponAttachment.equiped)
             {
-
+                coolDownOver = false;
+                Instantiate(bombWeaponAttachment.prefab, shootPoint.position, shootPoint.rotation);
+                StartCoroutine(ShootWait("Bomb"));
             }
         }
         if (touchingBomb && ableToGetBombed)
@@ -175,19 +200,20 @@ public class PlayerShipController : MonoBehaviour
             ableToGetBombed = false;
             StartCoroutine(PainWait());
         }
-        if (Input.GetKey(KeyCode.N)) 
+        /*if (Input.GetKey(KeyCode.N)) 
         {
             health = 10;
-        }
+        }*/
     }
 
     void Respawn()
     {
+        deadText.SetActive(true);
         if (Input.GetKey(KeyCode.E))
         {
             moveAble = true;
             health = maxHealth;
-            areaScript.LoadUser(areaScript.level, money);
+            areaScript.RespawnUser();
             Debug.Log("Respawned");
             spriteRenderer.enabled = true;
             spriteRenderer.sprite = playerShip;
@@ -197,28 +223,29 @@ public class PlayerShipController : MonoBehaviour
             transform.eulerAngles = newRotation;
             dieAble = true;
             transform.localScale = new Vector2(.2f, .2f);
+            deadText.SetActive(false);
         }
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "EnemyLaser")
+        if (collision.CompareTag("EnemyLaser"))
         {
             touchingEnemyLaser = true;
         }
-        if (collision.tag == "Sun")
+        if (collision.CompareTag("Sun"))
         {
             touchingSun = true;
             meltingImage.enabled = true;
         }
-        if (collision.tag == "Bomb")
+        if (collision.CompareTag("Bomb"))
         {
             touchingBomb = true;
         }
-        if (collision.tag == "Station")
+        if (collision.CompareTag("Station"))
         {
             touchingStation = true;
         }
-        if (collision.tag == "Interactable")
+        if (collision.CompareTag("Interactable"))
         {
             touchingAreaPortal = true;
             if (collision.gameObject.name == "ToMercuryFromSun" || collision.gameObject.name == "ToVenusFromMercury" || collision.gameObject.name == "ToEarthFromVenus")
@@ -245,24 +272,24 @@ public class PlayerShipController : MonoBehaviour
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.tag == "EnemyLaser")
+        if (collision.CompareTag("EnemyLaser"))
         {
             touchingEnemyLaser = false;
         }
-        if (collision.tag == "Sun")
+        if (collision.CompareTag("Sun"))
         {
             touchingSun = false;
             meltingImage.enabled = false;
         }
-        if (collision.tag == "Bomb")
+        if (collision.CompareTag("Bomb"))
         {
             touchingBomb = false;
         }
-        if (collision.tag == "Station")
+        if (collision.CompareTag("Station"))
         {
             touchingStation = false;
         }
-        if (collision.tag == "Interactable")
+        if (collision.CompareTag("Interactable"))
         {
             touchingAreaPortal = false;
             if (collision.gameObject.name == "ToMercuryFromSun" || collision.gameObject.name == "ToVenusFromMercury" || collision.gameObject.name == "ToEarthFromVenus")
@@ -305,11 +332,16 @@ public class PlayerShipController : MonoBehaviour
             ableToGetBombed = true;
         }
     }
-    IEnumerator ShootWait()
+    IEnumerator ShootWait(string weaponUsed)
     {
-        while (!coolDownOver)
+        while (!coolDownOver && weaponUsed == "Laser")
         {
             yield return new WaitForSeconds(coolDownTime);
+            coolDownOver = true;
+        }
+        while (!coolDownOver && weaponUsed == "Bomb")
+        {
+            yield return new WaitForSeconds(coolDownTime * 5f);
             coolDownOver = true;
         }
     }
@@ -358,12 +390,12 @@ public class PlayerShipController : MonoBehaviour
         {
             transform.Translate(-transform.up * 17 * Time.deltaTime, Space.World);
         }
-        if (Input.GetKey(KeyCode.Z) && moveAble && boostAble)
+        /*if (Input.GetKey(KeyCode.Z) && moveAble && boostAble)
         {
             transform.Translate(transform.up * 45, Space.World);
             boostAble = false;
             StartCoroutine(BoostWait());
-        }
+        }*/
     }
     IEnumerator BoostWait()
     {

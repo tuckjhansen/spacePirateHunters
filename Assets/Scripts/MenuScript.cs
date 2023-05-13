@@ -28,8 +28,12 @@ public class MenuScript : MonoBehaviour
     private Canvas MainMenuCanvas;
     private AreaScript areaScript;
     public TMP_Text continueAreaText;
-    private string area;
-    private float moneyFromDB;
+    public string areaFromDB;
+    public float moneyFromDB;
+    public bool haveBombFromDB;
+    public float laserlevelFromDB;
+    public float bomblevelFromDB;
+    public float steelhulllevelFromDB;
 
     private void Start()
     {
@@ -65,6 +69,10 @@ public class MenuScript : MonoBehaviour
     {
         public string level;
         public float money;
+        public bool haveBomb;
+        public float laserLevel;
+        public float bombLevel;
+        public float steelHullLevel;
     }
 
     void ReplyRegister(string returnData)
@@ -110,8 +118,12 @@ public class MenuScript : MonoBehaviour
             {
                 continueButton.interactable = true;
                 continueAreaText.text = json.saveData.level;
-                area = json.saveData.level;
+                areaFromDB = json.saveData.level;
                 moneyFromDB = json.saveData.money;
+                haveBombFromDB = json.saveData.haveBomb;
+                laserlevelFromDB = json.saveData.laserLevel;
+                bomblevelFromDB = json.saveData.bombLevel;
+                steelhulllevelFromDB = json.saveData.bombLevel;
             }
         }
     }
@@ -198,17 +210,23 @@ public class MenuScript : MonoBehaviour
     }
     IEnumerator NewGameWait()
     {
-        yield return new WaitForSeconds(.2f);
-        areaScript = FindObjectOfType<AreaScript>();
-        areaScript.username = username;
+        yield return new WaitForSeconds(.5f);
+        foreach (AreaScript areaScript in FindObjectsOfType<AreaScript>())
+        {
+            areaScript.username = username;
+        }
+        
         Destroy(gameObject);
     }
     IEnumerator ContinueWait()
     {
-        yield return new WaitForSeconds(.15f);
-        areaScript = FindObjectOfType<AreaScript>();
-        areaScript.username = username;
-        areaScript.LoadUser(area, moneyFromDB);
+        yield return new WaitForSeconds(.2f);
+        foreach (AreaScript areaScript in FindObjectsOfType<AreaScript>())
+        {
+            areaScript.username = username;
+            this.areaScript = areaScript;
+        }
+        areaScript.LoadUser(areaFromDB, moneyFromDB, haveBombFromDB, laserlevelFromDB, bomblevelFromDB, steelhulllevelFromDB);
         Destroy(gameObject);
     }
 }

@@ -59,7 +59,11 @@
     <Compile Include="Assets\Scripts\LaserScript.cs" />
     <Compile Include="Assets\Scripts\PauseMenuController.cs" />
     <Compile Include="Assets\Scripts\Inventory.cs" />
+    <Compile Include="Assets\Scripts\MiniShopScript.cs" />
     <Compile Include="Assets\Scripts\EngineerEnemyController.cs" />
+    <Compile Include="Assets\Scripts\ShopScript.cs" />
+    <Compile Include="Assets\Scripts\TeleportScript2.cs" />
+    <Compile Include="Assets\Scripts\PlayerBombScript.cs" />
     <Compile Include="Assets\Scripts\PlayerShipController.cs" />
     <Compile Include="Assets\Scripts\SentryController.cs" />
     <Compile Include="Assets\Scripts\StandardEnemyController.cs" />
@@ -69,9 +73,6 @@
     <Compile Include="Assets\Scripts\BasicStationScript.cs" />
     <Compile Include="Assets\Scripts\BombScript.cs" />
     <Compile Include="Assets\Scripts\AreaScript.cs" />
-    <Compile Include="Assets\Scripts\MiniShopScript.cs" />
-    <Compile Include="Assets\Scripts\TeleportScript2.cs" />
-    <Compile Include="Assets\Scripts\ShopScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
@@ -88,6 +89,7 @@
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
+    <None Include="Assets\Bruno_Ace\OFL.txt" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />

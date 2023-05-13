@@ -40,7 +40,7 @@ public class MiniShopScript : MonoBehaviour
     public bool touchingShop = false;
     public UpgradeClass laser = new UpgradeClass ("laser", 0, 50, true, null, null, null, 15, null, null);
     public UpgradeClass bomb = new UpgradeClass("bomb", 0, 60, false, null, null, null, 15, null, null);
-    public UpgradeClass hull = new UpgradeClass("hull", 0, 60, true, null, null, null, 6, null, null);
+    public UpgradeClass hull = new UpgradeClass("Steel Hull", 0, 60, true, null, null, null, 6, null, null);
     private PlayerShipController playerShipController;
     public TMP_Text replyText;
     private bool shopOpen;
@@ -48,6 +48,9 @@ public class MiniShopScript : MonoBehaviour
     public GameObject UpgradeList;
     public GameObject UpgradeSlotPrefab;
     public Transform UpgradelistContentTransform;
+    public List<UpgradeClass> upgradeClassList = new ();
+    public Transform ContentHolder;
+
     private void Start()
     {
         playerShipController = FindObjectOfType<PlayerShipController>();
@@ -59,6 +62,9 @@ public class MiniShopScript : MonoBehaviour
         {
             CreateUpgradeSlot(hull);
         }
+        upgradeClassList.Add(bomb);
+        upgradeClassList.Add(hull);
+        upgradeClassList.Add(laser);
     }
     void CreateUpgradeSlot(UpgradeClass item)
     {
@@ -76,14 +82,17 @@ public class MiniShopScript : MonoBehaviour
     }
     void Update()
     {
-        if (laser.haveItem)
+        if (shopOpen)
         {
-            ManageUpgradesItem(laser);
+            foreach (UpgradeClass upgradeClass in upgradeClassList)
+            {
+                if (upgradeClass.haveItem)
+                {
+                    ManageUpgradesItem(upgradeClass);
+                }
+            }
         }
-        if (hull.haveItem)
-        {
-            ManageUpgradesItem(hull);
-        }
+
         moneyText.text = "Money: " + playerShipController.money;
         if (Input.GetKeyDown(KeyCode.E) && touchingShop && !shopOpen)
         {
@@ -93,7 +102,7 @@ public class MiniShopScript : MonoBehaviour
         {
             CloseShop();
         }
-    }
+    } 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Player")
@@ -113,6 +122,17 @@ public class MiniShopScript : MonoBehaviour
         shopOpen = true;
         ShopMenu.SetActive(true);
         HUD.SetActive(false);
+        foreach (Transform child in ContentHolder)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (UpgradeClass upgradeToCreate in upgradeClassList)
+        {
+            if (upgradeToCreate.haveItem) 
+            { 
+                CreateUpgradeSlot(upgradeToCreate);
+            }
+        }
     }
     void CloseShop()
     {
@@ -146,7 +166,7 @@ public class MiniShopScript : MonoBehaviour
             item.upgradeButton.color = Color.white;
             item.upgradeButtonbutton.interactable = true;
         }
-        if (item.level == item.maxLevel)
+        if (item.level >= item.maxLevel)
         {
             item.upgradeButton.color = Color.red;
             item.levelText.text = "Level: MAX";

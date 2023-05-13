@@ -13,6 +13,7 @@ TagManager:
   - Interactable
   - Abyss
   - GravityObject
+  - PlayerBomb
   layers:
   - Default
   - TransparentFX

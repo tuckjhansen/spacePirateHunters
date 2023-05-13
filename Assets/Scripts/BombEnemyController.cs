@@ -18,7 +18,7 @@ public class BombEnemyController : MonoBehaviour
     private PlayerShipController playerShipController;
     private float damage;
     private MiniShopScript miniShopScript;
-
+    private bool damageable = true;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -75,10 +75,27 @@ public class BombEnemyController : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Laser")
+        if (collision.tag == "Laser" && damageable)
         {
             damage = miniShopScript.laser.level + 5;
             health -= damage;
+            damageable = false;
+            StartCoroutine(Itime());
+        }
+        if (collision.tag == "PlayerBomb" && damageable)
+        {
+            damage = miniShopScript.bomb.level + 7;
+            health -= damage;
+            damageable = false;
+            StartCoroutine(Itime());
+        }
+    }
+    IEnumerator Itime()
+    {
+        while (!damageable)
+        {
+            yield return new WaitForSeconds(.4f);
+            damageable = true;
         }
     }
     IEnumerator ShootWait()
