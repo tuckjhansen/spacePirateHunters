@@ -1,7 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerBombScript : MonoBehaviour
@@ -12,14 +10,14 @@ public class PlayerBombScript : MonoBehaviour
     private Rigidbody2D rb;
     private Vector3 direction;
     private Animator animator;
-    private PlayerShipController playerShipController;
+    private PlayerController playerShipController;
     private BoxCollider2D boxCollider;
 
     void Start()
     {
         StartCoroutine(ExplosionWait());
         animator = GetComponent<Animator>();
-        playerShipController = FindObjectOfType<PlayerShipController>();
+        playerShipController = FindObjectOfType<PlayerController>();
         boxCollider = GetComponent<BoxCollider2D>();
         rb = GetComponent<Rigidbody2D>();
         if (GameObject.FindGameObjectsWithTag("Enemy").Count() > 0)

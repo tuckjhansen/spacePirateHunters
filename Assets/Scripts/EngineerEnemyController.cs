@@ -15,7 +15,7 @@ public class EngineerEnemyController : MonoBehaviour
     private Vector3 direction;
     private float randomAttack;
     private Animator animator;
-    private PlayerShipController playerShipController;
+    private PlayerController playerShipController;
     private float damage;
     private MiniShopScript miniShopScript;
     private bool damageable = true;
@@ -23,7 +23,7 @@ public class EngineerEnemyController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         player = GameObject.FindWithTag("Player");
-        playerShipController = player.GetComponent<PlayerShipController>();
+        playerShipController = player.GetComponent<PlayerController>();
         animator = GetComponent<Animator>();
         miniShopScript = FindObjectOfType<MiniShopScript>();
     }
@@ -35,8 +35,8 @@ public class EngineerEnemyController : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg);
         if (health <= 0 && alive)
         {
-            playerShipController.totalEnemiesKilled++;
-            playerShipController.enemiesKilledBeforeDeath++;
+            PlayerController.Stats.totalEnemiesKilled++;
+            PlayerController.Stats.enemiesKilledBeforeDeath++;
             playerShipController.money += Random.Range(4, 8);
             alive = false;
             animator.enabled = true;

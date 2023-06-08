@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 public class AreaScript : MonoBehaviour
 {
     public bool touchingPlayer = false;
-    private PlayerShipController playerShipController;
+    private PlayerController playerShipController;
 
     public BasicStationScript sunStation;
     public BasicStationScript mercuryStation;
@@ -34,14 +34,14 @@ public class AreaScript : MonoBehaviour
         miniShopScript = FindObjectOfType<MiniShopScript>();
         shopScript = FindObjectOfType<ShopScript>();
         inventoryScript = FindObjectOfType<Inventory>();
-        playerShipController = FindObjectOfType<PlayerShipController>();
+        playerShipController = FindObjectOfType<PlayerController>();
         player = GameObject.Find("PlayerShip");
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void Update()
     {
-        if (!playerShipController.inMercuryArea && !playerShipController.inSunArea && !playerShipController.inEarthArea && !playerShipController.inMarsArea)
+        /*if (!playerShipController.inMercuryArea && !playerShipController.inSunArea && !playerShipController.inEarthArea && !playerShipController.inMarsArea)
         {
             notInArea = true;
         }
@@ -50,13 +50,13 @@ public class AreaScript : MonoBehaviour
             notInArea = false;
         }
 
-        touchingPlayer = playerShipController.touchingAreaPortal;
-        if (touchingPlayer && Input.GetButton("Activate/Inventory") && canTeleport)
+        touchingPlayer = playerShipController.touchingAreaPortal;*/
+        /*if (touchingPlayer && Input.GetButton("Activate/Inventory") && canTeleport)
         {
             StartCoroutine(TeleportWait());
             canTeleport = false;
             TeleportPlayer();
-        }
+        }*/
 
 
         if (currentPortal == "toMercuryFromSun" && sunStation.completedSunStation)
@@ -93,7 +93,7 @@ public class AreaScript : MonoBehaviour
         {
             spriteRenderer.color = Color.white;
         }
-        if (playerShipController.inSunArea && maxAreaInt < 1)
+        /*if (playerShipController.inSunArea && maxAreaInt < 1)
         {
             level = "Sun";
             maxAreaInt = 1;
@@ -112,14 +112,14 @@ public class AreaScript : MonoBehaviour
         {
             level = "Earth";
             maxAreaInt = 4;
-        }
+        }*/
     }
     IEnumerator TeleportWait()
     {
         yield return new WaitForSeconds(.3f);
         canTeleport = true;
     }
-    void TeleportPlayer()
+    /*void TeleportPlayer()
     {
         if (currentPortal == "toMercuryFromSun" && sunStation.completedSunStation && playerShipController.inSunArea && playerShipController.touchingAdvanceAreaPortal)
         {
@@ -175,7 +175,7 @@ public class AreaScript : MonoBehaviour
             StartCoroutine(SaveUser());
             savingSymbol.SetActive(true);
         }
-    }
+    }*/
     public class UpdateJson
     {
 
@@ -204,7 +204,7 @@ public class AreaScript : MonoBehaviour
         SaveData saveData = new SaveData();
         saveData.level = level;
         saveData.money = playerShipController.money;
-        saveData.haveBomb = playerShipController.bombWeaponAttachment.haveWeapon;
+        /*saveData.haveBomb = playerShipController.bombWeaponAttachment.haveWeapon;*/
         saveData.bombLevel = miniShopScript.bomb.level;
         saveData.laserLevel = miniShopScript.laser.level;
         saveData.steelHullLevel = miniShopScript.hull.level;
@@ -268,7 +268,7 @@ public class AreaScript : MonoBehaviour
         miniShopScript.laser.level = laserlevel;
         miniShopScript.hull.level = steelhulllevel;
         miniShopScript.bomb.level = bomblevel;
-        playerShipController.bombWeaponAttachment.haveWeapon = havebomb;
+        /*playerShipController.bombWeaponAttachment.haveWeapon = havebomb;*/
         if (havebomb == true)
         {
             inventoryScript.AddItem(shopScript.bombItem);

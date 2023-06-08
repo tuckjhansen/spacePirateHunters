@@ -21,7 +21,7 @@ public class Inventory : MonoBehaviour
     private bool inventoryOpenable = true;
     public GameObject inventory;
     public GameObject HUD;
-    private PlayerShipController playerShipController;
+    private PlayerController playerShipController;
     private MiniShopScript miniShopScript;
     public Transform ItemContent;
     public GameObject InventoryItem;
@@ -52,7 +52,7 @@ public class Inventory : MonoBehaviour
                 itemIcon.transform.localScale = new Vector3(1.1f, 1.1f, 1);
                 itemName.text = item.itemName;
                 itemIcon.sprite = item.icon;
-                playerShipController.weaponEquiped = item.itemName;
+                /*playerShipController.weaponEquiped = item.itemName;*/
             }
         }
     }
@@ -77,7 +77,7 @@ public class Inventory : MonoBehaviour
 
     private void Start()
     {
-        playerShipController = FindObjectOfType<PlayerShipController>();
+        playerShipController = FindObjectOfType<PlayerController>();
         miniShopScript = FindObjectOfType<MiniShopScript>();
         shopScript = FindObjectOfType<ShopScript>();
         foreach (Item item in items)
@@ -101,14 +101,14 @@ public class Inventory : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && !inventoryOpen && inventoryOpenable && !playerShipController.touchingAdvanceAreaPortal && !playerShipController.touchingAreaPortal && !miniShopScript.touchingShop && !shopScript.touchingPlayer && playerShipController.health > 0)
+        /*if (Input.GetKeyDown(KeyCode.E) && !inventoryOpen && inventoryOpenable && !playerShipController.touchingAdvanceAreaPortal && !playerShipController.touchingAreaPortal && !miniShopScript.touchingShop && !shopScript.touchingPlayer && playerShipController.health > 0)
         {
             OpenInventory();
         }
         if (Input.GetKeyDown(KeyCode.E) && inventoryOpen && inventoryOpenable && !playerShipController.touchingAdvanceAreaPortal && !playerShipController.touchingAreaPortal)
         {
             CloseInventory();
-        }
+        }*/
     }
     public void OpenInventory()
     {

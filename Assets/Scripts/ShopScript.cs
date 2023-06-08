@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -41,7 +40,7 @@ public class ShopScript : MonoBehaviour
     public Transform itemList;
     public GameObject itemPrefab;
     public GameObject itemListGameobject;
-    private PlayerShipController playerShipController;
+    private PlayerController playerShipController;
     public TMP_Text moneyText;
     public Item laserItem;
     public Item bombItem;
@@ -52,7 +51,7 @@ public class ShopScript : MonoBehaviour
 
     void Start()
     {
-        playerShipController = FindObjectOfType<PlayerShipController>();
+        playerShipController = FindObjectOfType<PlayerController>();
         miniShopScript = FindObjectOfType<MiniShopScript>();
         inventory = FindObjectOfType<Inventory>();
         Itemslist.Add(laserItem);
@@ -87,13 +86,13 @@ public class ShopScript : MonoBehaviour
             {
                 item.boughtItem = true;
                 playerShipController.money -= item.cost;
-                foreach (Weapon weapon in playerShipController.attachmentWeaponList)
+                /*foreach (Weapon weapon in playerShipController.attachmentWeaponList)
                 {
                     if (weapon.name == item.name)
                     {
                         weapon.haveWeapon = true;
                     }
-                }
+                }*/
                 foreach (UpgradeClass weapon in miniShopScript.upgradeClassList)
                 {
                     if (weapon.name == item.name)
@@ -116,14 +115,14 @@ public class ShopScript : MonoBehaviour
     void Update()
     {
         moneyText.text = "Money: " + playerShipController.money;
-        if (touchingPlayer && Input.GetKeyDown(KeyCode.E) && !shopOpen) 
+        /*if (touchingPlayer && Input.GetKeyDown(KeyCode.E) && !shopOpen) 
         {
             OpenShop();
         }
         else if (Input.GetKeyDown(KeyCode.E) && shopOpen)
         {
             CloseShop();
-        }
+        }*/
         if (shopOpen)
         {
             if (!bomb.boughtItem)

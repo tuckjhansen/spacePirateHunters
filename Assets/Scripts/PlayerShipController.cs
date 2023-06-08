@@ -1,9 +1,7 @@
-using System.Collections;
+/*using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Unity.Mathematics;
-using NUnit.Framework;
 using System.Collections.Generic;
 
 public class Weapon
@@ -58,8 +56,8 @@ public class PlayerShipController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private bool boostAble = true;
 
-    public Weapon laserWeaponAttachment = new ("laser", true, null, true);
-    public Weapon bombWeaponAttachment = new ("bomb", false, null, false);
+    public Weapon laserWeaponAttachment = new("laser", true, null, true);
+    public Weapon bombWeaponAttachment = new("bomb", false, null, false);
     public string weaponEquiped;
     public GameObject LaserPrefab;
     private AreaScript areaScript;
@@ -73,6 +71,7 @@ public class PlayerShipController : MonoBehaviour
     public List<Weapon> attachmentWeaponList = new();
     public GameObject playerBomb;
     public GameObject deadText;
+
 
     private void Start()
     {
@@ -90,7 +89,7 @@ public class PlayerShipController : MonoBehaviour
     }
     private void Update()
     {
-        foreach (Weapon weapon in attachmentWeaponList) 
+        foreach (Weapon weapon in attachmentWeaponList)
         {
             if (weaponEquiped == weapon.name)
             {
@@ -108,7 +107,7 @@ public class PlayerShipController : MonoBehaviour
         {
             Respawn();
         }
-        Vector3 position = new (transform.position.x, transform.position.y, -10);
+        Vector3 position = new(transform.position.x, transform.position.y, -10);
         MapCamera.position = position;
         if (inSunArea)
         {
@@ -142,13 +141,13 @@ public class PlayerShipController : MonoBehaviour
         GameObject[] EnemiesCount = GameObject.FindGameObjectsWithTag("Enemy");
         enemyCount = EnemiesCount.Length;
         EnemiesRemainingText.text = "Pirates Remaining: " + enemyCount;
-        /*if (Input.GetKeyDown(KeyCode.K))
+        if (Input.GetKeyDown(KeyCode.K))
         {
             foreach (GameObject go in EnemiesCount)
             {
                 go.SetActive(false);
             }
-        }*/
+        }
         if (touchingEnemyLaser && ableToGetLasered)
         {
             float damage = 5;
@@ -168,10 +167,12 @@ public class PlayerShipController : MonoBehaviour
             enemiesKilledBeforeDeath = 0;
             dieAble = false;
         }
-        
+
         if (touchingSun && meltAble)
         {
-            health--;
+            float damage = 1;
+            damage -= miniShopScript.hull.level / 3;
+            health -= damage;
             meltAble = false;
             StartCoroutine("PainWait");
         }
@@ -200,10 +201,10 @@ public class PlayerShipController : MonoBehaviour
             ableToGetBombed = false;
             StartCoroutine(PainWait());
         }
-        /*if (Input.GetKey(KeyCode.N)) 
+        if (Input.GetKey(KeyCode.N))
         {
             health = 10;
-        }*/
+        }
     }
 
     void Respawn()
@@ -353,12 +354,12 @@ public class PlayerShipController : MonoBehaviour
     }
     IEnumerator HealWait()
     {
-         yield return new WaitForSeconds(1f);
-         canHealStation = true;
+        yield return new WaitForSeconds(1f);
+        canHealStation = true;
     }
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.tag == "GravityObject" || collision.tag == "Sun")
+        if (collision.CompareTag("GravityObject") || collision.tag == "Sun")
         {
             float distance = Vector2.Distance(collision.transform.position, transform.position);
 
@@ -390,12 +391,12 @@ public class PlayerShipController : MonoBehaviour
         {
             transform.Translate(-transform.up * 17 * Time.deltaTime, Space.World);
         }
-        /*if (Input.GetKey(KeyCode.Z) && moveAble && boostAble)
+        if (Input.GetKey(KeyCode.Z) && moveAble && boostAble)
         {
             transform.Translate(transform.up * 45, Space.World);
             boostAble = false;
             StartCoroutine(BoostWait());
-        }*/
+        }
     }
     IEnumerator BoostWait()
     {
@@ -405,4 +406,4 @@ public class PlayerShipController : MonoBehaviour
             boostAble = true;
         }
     }
-}
+}*/

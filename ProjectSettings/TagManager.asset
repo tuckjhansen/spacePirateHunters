@@ -18,15 +18,15 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - PlayerLaser
   - Water
   - UI
-  - 
-  - 
+  - Camera
+  - MapCamera
   - Enemies
   - Team
   - Minimap
-  - 
+  - PlayerShip
   - 
   - 
   - 

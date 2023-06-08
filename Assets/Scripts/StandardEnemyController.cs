@@ -14,7 +14,7 @@ public class StandardEnemyController : MonoBehaviour
     private Rigidbody2D rb;
     public Vector3 direction;
     private Animator animator;
-    private PlayerShipController playerShipController;
+    private PlayerController playerShipController;
     private float damage;
     private MiniShopScript miniShopScript;
     private bool damageable = true;
@@ -22,7 +22,7 @@ public class StandardEnemyController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         player = GameObject.FindWithTag("Player");
-        playerShipController = player.GetComponent<PlayerShipController>();
+        playerShipController = player.GetComponent<PlayerController>();
         animator = GetComponent<Animator>();
         spaceStation = GameObject.Find("SpaceStation");
         miniShopScript = FindObjectOfType<MiniShopScript>();
@@ -65,9 +65,9 @@ public class StandardEnemyController : MonoBehaviour
         }
         if (health <= 0 && alive)
         {
-            playerShipController.totalEnemiesKilled++;
+            /*playerShipController.totalEnemiesKilled++;
             playerShipController.enemiesKilledBeforeDeath++;
-            playerShipController.money += Random.Range(3, 6);
+            playerShipController.money += Random.Range(3, 6);*/
             alive = false;
             animator.enabled = true;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;

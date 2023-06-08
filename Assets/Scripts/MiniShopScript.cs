@@ -1,10 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Data;
-using UnityEngine.Events;
 
 public class UpgradeClass 
 {
@@ -41,7 +38,7 @@ public class MiniShopScript : MonoBehaviour
     public UpgradeClass laser = new UpgradeClass ("laser", 0, 50, true, null, null, null, 15, null, null);
     public UpgradeClass bomb = new UpgradeClass("bomb", 0, 60, false, null, null, null, 15, null, null);
     public UpgradeClass hull = new UpgradeClass("Steel Hull", 0, 60, true, null, null, null, 6, null, null);
-    private PlayerShipController playerShipController;
+    private PlayerController playerShipController;
     public TMP_Text replyText;
     private bool shopOpen;
     public TMP_Text moneyText;
@@ -53,7 +50,7 @@ public class MiniShopScript : MonoBehaviour
 
     private void Start()
     {
-        playerShipController = FindObjectOfType<PlayerShipController>();
+        playerShipController = FindObjectOfType<PlayerController>();
         if (laser.haveItem)
         {
             CreateUpgradeSlot(laser);
@@ -93,15 +90,15 @@ public class MiniShopScript : MonoBehaviour
             }
         }
 
-        moneyText.text = "Money: " + playerShipController.money;
-        if (Input.GetKeyDown(KeyCode.E) && touchingShop && !shopOpen)
+        /*moneyText.text = "Money: " + playerShipController.money;*/
+        /*if (Input.GetKeyDown(KeyCode.E) && touchingShop && !shopOpen)
         {
             OpenShop();
         }
         else if (Input.GetKeyDown(KeyCode.E) && shopOpen)
         {
             CloseShop();
-        }
+        }*/
     } 
     private void OnTriggerEnter2D(Collider2D collision)
     {

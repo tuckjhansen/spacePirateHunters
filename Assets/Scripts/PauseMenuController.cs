@@ -27,10 +27,10 @@ public class PauseMenuController : MonoBehaviour
             pauseMenu.SetActive(true);
             Time.timeScale = 0f;
         }
-        if (Input.GetKey(KeyCode.Q)) 
+        /*if (Input.GetKey(KeyCode.Q)) 
         {
             paused = true;
-        }
+        }*/
     }
     public void Quit()
     {

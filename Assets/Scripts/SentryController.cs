@@ -11,14 +11,14 @@ public class SentryController : MonoBehaviour
     public Transform shootPointTransform;
     public GameObject laserPrefab;
     private Animator animator;
-    private PlayerShipController playerShipController;
+    private PlayerController playerShipController;
     private float damage;
     private MiniShopScript miniShopScript;
 
     void Start()
     {
         player = GameObject.FindWithTag("Player");
-        playerShipController = player.GetComponent<PlayerShipController>();
+        playerShipController = player.GetComponent<PlayerController>();
         animator = GetComponent<Animator>();
         miniShopScript = FindObjectOfType<MiniShopScript>();
     }
@@ -30,8 +30,8 @@ public class SentryController : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg);
         if (health <= 0 && alive)
         {
-            playerShipController.totalEnemiesKilled++;
-            playerShipController.enemiesKilledBeforeDeath++;
+            PlayerController.Stats.totalEnemiesKilled++;
+            PlayerController.Stats.enemiesKilledBeforeDeath++;
             playerShipController.money += Random.Range(2, 4);
             alive = false;
             transform.localScale = new Vector3(.5f, .5f, 1);

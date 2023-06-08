@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using TMPro;
+
 interface WaveConfig
 {
 
@@ -16,6 +17,7 @@ class MyWaveConfig : WaveConfig
     public float numberOfBomberEnemies { get; set; }
     public float numberOfEngineerEnemies { get; set; }
 }
+
 
 public class BasicStationScript : MonoBehaviour
 {
@@ -58,6 +60,7 @@ public class BasicStationScript : MonoBehaviour
     
     public TMP_Text waveText;
 
+    
     public List<GameObject> enemies = new List<GameObject>();
     private void Start()
     {
