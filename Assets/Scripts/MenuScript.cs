@@ -5,6 +5,10 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using TMPro;
 using Newtonsoft.Json;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using Unity.Services.Core;
+using Unity.Services.Authentication;
 
 public class MenuScript : MonoBehaviour
 {
@@ -26,7 +30,6 @@ public class MenuScript : MonoBehaviour
     public Button enterLogInButton;
     public Button continueButton;
     private Canvas MainMenuCanvas;
-    private AreaScript areaScript;
     public TMP_Text continueAreaText;
     public string areaFromDB;
     public float moneyFromDB;
@@ -34,6 +37,9 @@ public class MenuScript : MonoBehaviour
     public float laserlevelFromDB;
     public float bomblevelFromDB;
     public float steelhulllevelFromDB;
+    [DllImport("__Internal")] public static extern void CloseWindow();
+    [DllImport("__Internal")] public static extern void HelloString(string str);
+
 
     private void Start()
     {
@@ -170,9 +176,9 @@ public class MenuScript : MonoBehaviour
     public void Continue()
     {
         DontDestroyOnLoad(gameObject);
-        StartCoroutine(ContinueWait());
+        StartCoroutine(LoadWait(true));
         MainMenuCanvas.enabled = false;
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene("LoadingScene");
     }
     public void SignIn()
     {
@@ -200,33 +206,75 @@ public class MenuScript : MonoBehaviour
     public void NewGame()
     {
         DontDestroyOnLoad(gameObject);
-        StartCoroutine(NewGameWait());
+        StartCoroutine(LoadWait(false));
         MainMenuCanvas.enabled = false;
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene("LoadingScene");
     }
     public void QuitGame()
     {
+        CloseWindow();
         Application.Quit();
     }
-    IEnumerator NewGameWait()
+    IEnumerator LoadWait(bool continuing)
     {
-        yield return new WaitForSeconds(.5f);
-        foreach (AreaScript areaScript in FindObjectsOfType<AreaScript>())
+        yield return new WaitForSeconds(1f);
+        AsyncOperation loadingOperation = SceneManager.LoadSceneAsync("Game");
+        loadingOperation.allowSceneActivation = true;
+        while (!loadingOperation.isDone)
         {
-            areaScript.username = username;
+            yield return null;
         }
-        
+        if (continuing)
+        {
+            GameObject tutorialArea = GameObject.Find("Tutorial");
+            tutorialArea.SetActive(false);
+        }
+        else
+        {
+            GameObject hubArea = GameObject.Find("HubArea");
+            hubArea.SetActive(false);
+            GameObject.Find("PlayerShip").transform.position = new Vector3(-310, -795, 0);
+        }
+        foreach (SaveScript saveScript in FindObjectsOfType<SaveScript>())
+        {
+            saveScript.username = username;
+        }
         Destroy(gameObject);
     }
-    IEnumerator ContinueWait()
+}
+
+
+public class MenuScript2 : MonoBehaviour
+{
+    [Header("Menus")]
+    [SerializeField] private GameObject notLoggedInMenu;
+    [SerializeField] private GameObject logInMenu;
+    [SerializeField] private GameObject signUpMenu;
+    [SerializeField] private GameObject savedGamesMenu;
+
+    [Header("UI")]
+    [SerializeField] private TMP_InputField usernameLogInText;
+    [SerializeField] private TMP_InputField passwordLogInText;
+    [SerializeField] private TMP_Text replyLoginText;
+    [SerializeField] private TMP_InputField usernameSignUpText;
+    [SerializeField] private TMP_InputField passwordSignUpText;
+    [SerializeField] private TMP_Text replySignUpText;
+
+    private void Start()
     {
-        yield return new WaitForSeconds(.2f);
-        foreach (AreaScript areaScript in FindObjectsOfType<AreaScript>())
-        {
-            areaScript.username = username;
-            this.areaScript = areaScript;
-        }
-        areaScript.LoadUser(areaFromDB, moneyFromDB, haveBombFromDB, laserlevelFromDB, bomblevelFromDB, steelhulllevelFromDB);
-        Destroy(gameObject);
+        UnityServices.InitializeAsync();
     }
+
+    public void SignUp()
+    {
+        SignUpWithUsernamePassword(usernameSignUpText.text, passwordSignUpText.text);
+    }
+
+    private async Task SignUpWithUsernamePassword(string username, string password)
+    {
+        await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
+        Debug.Log($"username: {username}. password: {password}. playerID: {AuthenticationService.Instance.PlayerId}");
+    }
+
+
 }

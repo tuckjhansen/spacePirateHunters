@@ -15,4 +15,4 @@ MonoBehaviour:
   itemName: engine
   icon: {fileID: 0}
   haveItem: 0
-  occupation: thrust
+  occupation: 4

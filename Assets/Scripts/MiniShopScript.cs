@@ -2,42 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
-public class UpgradeClass 
-{
-    public UpgradeClass(string name, float level, float cost, bool haveItem, TMP_Text moneyText, TMP_Text levelText, Image upgradeButton, float maxLevel, Button upgradeButtonbutton, TMP_Text titleText)
-    {
-        this.name = name;
-        this.level = level;
-        this.cost = cost;
-        this.haveItem = haveItem;
-        this.moneyText = moneyText;
-        this.levelText = levelText;
-        this.upgradeButton = upgradeButton;
-        this.maxLevel = maxLevel;
-        this.upgradeButtonbutton = upgradeButtonbutton;
-        this.titleText = titleText;
-    }
-    public string name;
-    public float level;
-    public float cost;
-    public bool haveItem;
-    public TMP_Text moneyText;
-    public TMP_Text levelText;
-    public TMP_Text titleText;
-    public Image upgradeButton;
-    public float maxLevel;
-    public Button upgradeButtonbutton;
-}
+using UnityEngine.InputSystem;
+using System.Collections;
 
 public class MiniShopScript : MonoBehaviour
 {
     public GameObject HUD;
     public GameObject ShopMenu;
     public bool touchingShop = false;
-    public UpgradeClass laser = new UpgradeClass ("laser", 0, 50, true, null, null, null, 15, null, null);
-    public UpgradeClass bomb = new UpgradeClass("bomb", 0, 60, false, null, null, null, 15, null, null);
-    public UpgradeClass hull = new UpgradeClass("Steel Hull", 0, 60, true, null, null, null, 6, null, null);
     private PlayerController playerShipController;
     public TMP_Text replyText;
     private bool shopOpen;
@@ -47,21 +19,26 @@ public class MiniShopScript : MonoBehaviour
     public Transform UpgradelistContentTransform;
     public List<UpgradeClass> upgradeClassList = new ();
     public Transform ContentHolder;
+    private SaveScript saveScript;
+    [SerializeField]
+    private InputActionReference use;
+    private bool shopOpenable = true;
 
     private void Start()
     {
+        saveScript = FindObjectOfType<SaveScript>();
         playerShipController = FindObjectOfType<PlayerController>();
-        if (laser.haveItem)
+        if (saveScript.laser.haveItem)
         {
-            CreateUpgradeSlot(laser);
+            CreateUpgradeSlot(saveScript.laser);
         }
-        if (hull.haveItem)
+        if (saveScript.hull.haveItem)
         {
-            CreateUpgradeSlot(hull);
+            CreateUpgradeSlot(saveScript.hull);
         }
-        upgradeClassList.Add(bomb);
-        upgradeClassList.Add(hull);
-        upgradeClassList.Add(laser);
+        upgradeClassList.Add(saveScript.bomb);
+        upgradeClassList.Add(saveScript.hull);
+        upgradeClassList.Add(saveScript.laser);
     }
     void CreateUpgradeSlot(UpgradeClass item)
     {
@@ -90,26 +67,30 @@ public class MiniShopScript : MonoBehaviour
             }
         }
 
-        /*moneyText.text = "Money: " + playerShipController.money;*/
-        /*if (Input.GetKeyDown(KeyCode.E) && touchingShop && !shopOpen)
+        moneyText.text = "Money: " + playerShipController.money;
+        if (use.action.ReadValue<float>() != 0 && touchingShop && !shopOpen && shopOpenable)
         {
+            shopOpenable = false;
             OpenShop();
+            StartCoroutine(OpenWait());
         }
-        else if (Input.GetKeyDown(KeyCode.E) && shopOpen)
+        else if (use.action.ReadValue<float>() != 0 && shopOpen && shopOpenable)
         {
+            shopOpenable = false;
             CloseShop();
-        }*/
+            StartCoroutine(OpenWait());
+        }
     } 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Player")
+        if (collision.CompareTag("Player"))
         {
             touchingShop = true;
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.tag == "Player")
+        if (collision.CompareTag("Player"))
         {
             touchingShop = false; 
         }
@@ -169,5 +150,10 @@ public class MiniShopScript : MonoBehaviour
             item.levelText.text = "Level: MAX";
             item.upgradeButtonbutton.interactable = false;
         }
+    }
+    IEnumerator OpenWait()
+    {
+        yield return new WaitForSeconds(.3f);
+        shopOpenable = true;
     }
 }

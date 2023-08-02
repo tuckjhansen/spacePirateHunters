@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class ItemClass
@@ -27,6 +29,7 @@ public class ItemClass
     public TMP_Text costText;
     public Button buyItemButton;
     public Image buyItemButtonImage;
+     
 }
 
 public class ShopScript : MonoBehaviour
@@ -37,6 +40,7 @@ public class ShopScript : MonoBehaviour
     public GameObject HUD;
     private bool shopOpen = false;
     public ItemClass bomb = new ("bomb", "Shoots a slow projectile that targets enemies doing a lot of damage", 180, false, null, null, null, null, null);
+    public ItemClass EMP = new ("EMP", "Stuns all nearby enemies", 250, false, null, null, null, null, null);
     public Transform itemList;
     public GameObject itemPrefab;
     public GameObject itemListGameobject;
@@ -45,9 +49,14 @@ public class ShopScript : MonoBehaviour
     public Item laserItem;
     public Item bombItem;
     public Item steelHullItem;
+    public Item EMPItem;
     private Inventory inventory;
     public List<Item> Itemslist = new ();
+    public List<ItemClass> BuyableItemsList = new ();
     private MiniShopScript miniShopScript;
+    [SerializeField]
+    private InputActionReference use;
+    private bool shopOpenable = true;
 
     void Start()
     {
@@ -57,6 +66,9 @@ public class ShopScript : MonoBehaviour
         Itemslist.Add(laserItem);
         Itemslist.Add(bombItem);
         Itemslist.Add(steelHullItem);
+        Itemslist.Add(EMPItem);
+        BuyableItemsList.Add(EMP);
+        BuyableItemsList.Add(bomb);
         foreach (Item item in Itemslist) 
         { 
             if (item.haveItem)
@@ -86,13 +98,13 @@ public class ShopScript : MonoBehaviour
             {
                 item.boughtItem = true;
                 playerShipController.money -= item.cost;
-                /*foreach (Weapon weapon in playerShipController.attachmentWeaponList)
+                foreach (Weapon weapon in playerShipController.attachmentWeaponList)
                 {
                     if (weapon.name == item.name)
                     {
                         weapon.haveWeapon = true;
                     }
-                }*/
+                }
                 foreach (UpgradeClass weapon in miniShopScript.upgradeClassList)
                 {
                     if (weapon.name == item.name)
@@ -115,21 +127,25 @@ public class ShopScript : MonoBehaviour
     void Update()
     {
         moneyText.text = "Money: " + playerShipController.money;
-        /*if (touchingPlayer && Input.GetKeyDown(KeyCode.E) && !shopOpen) 
+        if (touchingPlayer && use.action.ReadValue<float>() != 0 && !shopOpen && shopOpenable) 
         {
             OpenShop();
+            shopOpenable = false;
+            StartCoroutine(OpenWait());
         }
-        else if (Input.GetKeyDown(KeyCode.E) && shopOpen)
+        else if (use.action.ReadValue<float>() != 0 && shopOpen && shopOpenable)
         {
             CloseShop();
-        }*/
+            shopOpenable = false;
+            StartCoroutine(OpenWait());
+        }
         if (shopOpen)
         {
-            if (!bomb.boughtItem)
+            foreach (ItemClass item in BuyableItemsList)
             {
-                if (!bomb.boughtItem)
+                if (!item.boughtItem)
                 {
-                    ManageItems(bomb);
+                    ManageItems(item);
                 }
             }
         }
@@ -151,9 +167,13 @@ public class ShopScript : MonoBehaviour
     }
     void OpenShop()
     {
-        if (!bomb.boughtItem)
+
+        foreach (ItemClass item in BuyableItemsList)
         {
-            CreateItemSlots(bomb);
+            if (!item.boughtItem)
+            {
+                CreateItemSlots(item);
+            }
         }
         ShopUI.SetActive(true);
         HUD.SetActive(false);
@@ -171,16 +191,21 @@ public class ShopScript : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Player")
+        if (collision.CompareTag("Player"))
         {
             touchingPlayer = true;
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.tag == "Player")
+        if (collision.CompareTag("Player"))
         {
             touchingPlayer = false;
         }
+    }
+    IEnumerator OpenWait()
+    {
+        yield return new WaitForSeconds(.3f);
+        shopOpenable = true;
     }
 }

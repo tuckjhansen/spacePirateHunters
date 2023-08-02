@@ -1,10 +1,11 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.Video;
+
 public class Weapon
 {
     public Weapon(string name, bool equiped, GameObject prefab, bool haveWeapon, bool cooldownDone, float cooldowntime)
@@ -44,27 +45,34 @@ public class Tags
 public class PlayerController : MonoBehaviour
 {
     private readonly List<Tags> TagsList = new();
-    private readonly Tags sun = new(.9f, null, "Sun", "damage", 1, true);
     private readonly Tags enemyLaser = new(.3f, null, "Laser", "damage", 5, true);
-    private readonly Tags gravityObject = new(0f, null, "Planet", "gravity", 0, true);
-    
+    private readonly Tags goodStation = new(.2f, null, "goodStation", "heal", -20, true);
     public GameObject laserPrefabEnemy;
     public float health = 125;
     public float maxHealth = 125;
     public Slider healthSlider;
-    public TMP_Text totalEnemiesKilledText;
-    public TMP_Text enemiesKilledBeforeDeathText;
-    public TMP_Text moneyText;
+    [SerializeField] private TMP_Text totalEnemiesKilledText;
+    [SerializeField] private TMP_Text enemiesKilledBeforeDeathText;
+    [SerializeField] private TMP_Text moneyText;
+    [SerializeField] private TMP_Text enemyCountText;
+    [SerializeField] private TMP_Text healthText;
     public float money = 0;
-    public Weapon laserWeaponAttachment = new("laser", true, null, true, true, .43f);
-    public Weapon bombWeaponAttachment = new("bomb", false, null, false, true, 2.15f);
+    public Weapon laserWeaponAttachment = new("laser", true, null, true, true, .25f);
+    public Weapon bombWeaponAttachment = new("bomb", false, null, false, true, 1.6f);
+    public Weapon EMPWeaponAttachment = new("EMP", false, null, false, true, 4);
     public GameObject LaserPrefab;
     public GameObject playerBomb;
+    public GameObject playerEMPPrefab;
     public List<Weapon> attachmentWeaponList = new();
+    public List<Weapon> attachmentSpecialWeaponList = new();
     private Rigidbody2D rb;
     private Animator animator;
     public string weaponEquiped;
+    public string specialWeaponEquiped;
     public Transform shootPoint;
+    private SpriteRenderer spriteRenderer;
+    [SerializeField] private GameObject hubArea;
+    [SerializeField] private Sprite ship;
     public struct Stats
     {
         public static float totalEnemiesKilled;
@@ -72,30 +80,24 @@ public class PlayerController : MonoBehaviour
     }
 
     [SerializeField]
-    private InputActionReference movement, rotation, attack, shootPointbuttons, use;
+    private InputActionReference movement, rotation, attack, shootPointbuttons, use, specialAttack;
 
     private void Start()
     {
+        spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         laserWeaponAttachment.prefab = LaserPrefab;
         bombWeaponAttachment.prefab = playerBomb;
+        EMPWeaponAttachment.prefab = playerEMPPrefab;
+        attachmentSpecialWeaponList.Add(EMPWeaponAttachment);
         attachmentWeaponList.Add(laserWeaponAttachment);
         attachmentWeaponList.Add(bombWeaponAttachment);
-        TagsList.Add(sun);
-        foreach (Tags tagObject in TagsList)
-        {
-            AssignGameobject(tagObject.name, tagObject);
-        }
         enemyLaser.gameObject = laserPrefabEnemy;
         TagsList.Add(enemyLaser);
-        TagsList.Add(gravityObject);
     }
-    void AssignGameobject(string name, Tags tagsobject)
-    {
-        tagsobject.gameObject = GameObject.Find(name);
-    }
+
     void ShootPoint(float axisofShootPointMovement)
     {
         GameObject shootPointCenter = shootPoint.transform.parent.gameObject;
@@ -111,67 +113,144 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        moneyText.text = "Money: " + money;
-        totalEnemiesKilledText.text = "Total Enemies Killed: " + Stats.totalEnemiesKilled;
-        enemiesKilledBeforeDeathText.text = "Enemies Killed Before Death: " + Stats.enemiesKilledBeforeDeath;
-        healthSlider.value = health / maxHealth;
-        foreach (Weapon weapon in attachmentWeaponList)
+        Vector3 zPositionChangedTo0 = new (transform.position.x, transform.position.y, 0);
+        transform.position = zPositionChangedTo0;
+        if (!CommandScript.IsPaused && !Inventory.inventoryOpen)
         {
-            if (weaponEquiped == weapon.name)
+            moneyText.text = "Money: " + money;
+            healthText.text = health + " / " + maxHealth;
+            totalEnemiesKilledText.text = "Enemies Killed: " + Stats.totalEnemiesKilled;
+            enemiesKilledBeforeDeathText.text = "Kills before death: " + Stats.enemiesKilledBeforeDeath;
+            healthSlider.value = health / maxHealth;
+            GameObject[] EnemiesCount = GameObject.FindGameObjectsWithTag("Enemy");
+            enemyCountText.text = "Enemies Remaining: " + EnemiesCount.Length;
+            foreach (Weapon weapon in attachmentWeaponList)
             {
-                weapon.equiped = true;
-                foreach (Weapon weaponNotEquiped in attachmentWeaponList)
+                if (weaponEquiped == weapon.name)
                 {
-                    if (weaponNotEquiped.name != weapon.name)
+                    weapon.equiped = true;
+                    foreach (Weapon weaponNotEquiped in attachmentWeaponList)
                     {
-                        weaponNotEquiped.equiped = false;
+                        if (weaponNotEquiped.name != weapon.name)
+                        {
+                            weaponNotEquiped.equiped = false;
+                        }
                     }
                 }
             }
-        }
-        int planetsNumber = 3;
-        GameObject[] planets = new GameObject[planetsNumber];
-        for (int i = 0; i < planetsNumber; i++)
-        {
-            planets[i] = GameObject.Find("Planet");
-        }
-        float closestPlanetDistance = int.MaxValue;
-        GameObject closestPlanet = null;
-        foreach (GameObject planet in planets)
-        {
-            if (planet != null)
+            foreach (Weapon weapon in attachmentSpecialWeaponList)
             {
-                if ((transform.position - planet.transform.position).sqrMagnitude < (closestPlanetDistance * closestPlanetDistance))
+                if (specialWeaponEquiped == weapon.name)
                 {
-                    closestPlanetDistance = (transform.position - planet.transform.position).sqrMagnitude;
-                    closestPlanet = planet;
+                    weapon.equiped = true;
+                    foreach (Weapon weaponNotEquiped in attachmentSpecialWeaponList)
+                    {
+                        if (weaponNotEquiped.name != weapon.name)
+                        {
+                            weaponNotEquiped.equiped = false;
+                        }
+                    }
                 }
+            }
+            if (health <= 0)
+            {
+                health = 0;
+                rb.constraints = RigidbodyConstraints2D.FreezeAll;
+                animator.enabled = true;
+                StartCoroutine(Wait(.5f, null, null));
+                if (use.action.ReadValue<float>() != 0)
+                {
+                    StartCoroutine(Respawn());
+                }
+            }
+            TagsList.Remove(goodStation);
+            GameObject foundStation = GameObject.FindGameObjectWithTag("Station");
+            if (foundStation != null)
+            {
+                goodStation.gameObject = foundStation;
+                TagsList.Add(goodStation);
             }
             else
             {
-                Debug.LogError("PlayerController.C# error in closest planet checking! Gameobject: " + planet);
+                goodStation.gameObject = null;
             }
-        }
-        gravityObject.gameObject = closestPlanet;
-    }
+            if (health >= maxHealth)
+            {
+                health = maxHealth;
+            }
+        }    }
+    
     private void FixedUpdate()
     {
-        if (shootPointbuttons.action.ReadValue<float>() != 0)
+        if (!CommandScript.IsPaused && !Inventory.inventoryOpen)
         {
-            ShootPoint(shootPointbuttons.action.ReadValue<float>());
+            if (shootPointbuttons.action.ReadValue<float>() != 0)
+            {
+                ShootPoint(shootPointbuttons.action.ReadValue<float>());
+            }
+            if (movement.action.ReadValue<float>() != 0)
+            {
+                Move(movement.action.ReadValue<float>());
+            }
+            if (rotation.action.ReadValue<float>() != 0)
+            {
+                Rotate(rotation.action.ReadValue<float>());
+            }
+            if (attack.action.ReadValue<float>() != 0 && health > 0)
+            {
+                Attack(weaponEquiped);
+            }
+            if (specialAttack.action.ReadValue<float>() != 0 && health > 0)
+            {
+                SpecialAttack(specialWeaponEquiped);
+            }
         }
-        if (movement.action.ReadValue<float>() != 0)
+    }
+    IEnumerator Respawn()
+    {
+        VideoPlayer loadingScreen = FindObjectOfType<VideoPlayer>();
+        loadingScreen.enabled = true;
+        GameObject currentarea = null;
+        string[] areas =
         {
-            Move(movement.action.ReadValue<float>());
-        }
-        if (rotation.action.ReadValue<float>() != 0)
+            "Sun",
+            "Mercury",
+            "Venus",
+            "Earth", 
+            "Mars",
+            "Arena"
+        };
+        foreach (GameObject areaObject in FindObjectsOfType<GameObject>())
         {
-            Rotate(rotation.action.ReadValue<float>());
+            if ((areaObject.name.EndsWith("Area") || areaObject.name.EndsWith("Arena")) && areaObject.activeInHierarchy)
+            {
+                foreach (string areaName in areas)
+                {
+                    if (areaObject.name.Contains(areaName))
+                    {
+                        currentarea = areaObject;
+                        break;
+                    }
+                }
+                break;
+            }
         }
-        if (attack.action.ReadValue<float>() != 0)
+        
+        currentarea.SetActive(false);
+        yield return new WaitForSeconds(1f);
+        foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
         {
-            Attack(weaponEquiped);
+            Destroy(enemy);
         }
+        hubArea.SetActive(true);
+        health = maxHealth;
+        rb.constraints = RigidbodyConstraints2D.None;
+        animator.enabled = false;
+        transform.position = new Vector3(-165, -667, 0);
+        spriteRenderer.enabled = true;
+        spriteRenderer.sprite = ship;
+        healthSlider.value = health / maxHealth;
+        loadingScreen.enabled = false;
     }
     void Move(float moveDirection)
     {
@@ -200,12 +279,25 @@ public class PlayerController : MonoBehaviour
     void Attack(string weaponused)
     {
         Weapon weapon = (Weapon)GetType().GetField(weaponused + "WeaponAttachment").GetValue(this);
-        if (weaponused == "laser" && weapon.cooldownDone)
+        if (weapon.cooldownDone)
         {
             weapon.cooldownDone = false;
-            GameObject Laser = Instantiate(laserWeaponAttachment.prefab, shootPoint.transform.parent.position, shootPoint.transform.rotation);
-            Rigidbody2D rb = Laser.GetComponent<Rigidbody2D>();
-            rb.AddForce(shootPoint.up * 28, ForceMode2D.Impulse);
+            GameObject weaponInstantiated = Instantiate(weapon.prefab, shootPoint.parent.position, shootPoint.rotation);
+            StartCoroutine(Wait(weapon.cooldowntime, null, weapon));
+            if (weaponused == "laser")
+            {
+                Rigidbody2D rb = weaponInstantiated.GetComponent<Rigidbody2D>();
+                rb.AddForce(shootPoint.up * 28, ForceMode2D.Impulse);
+            }
+        }
+    }
+    void SpecialAttack(string weaponused) 
+    {
+        Weapon weapon = (Weapon)GetType().GetField(weaponused + "WeaponAttachment").GetValue(this);
+        if (weapon.cooldownDone)
+        {
+            weapon.cooldownDone = false;
+            GameObject weaponInstantiated = Instantiate(weapon.prefab, shootPoint.parent.position, shootPoint.rotation);
             StartCoroutine(Wait(weapon.cooldowntime, null, weapon));
         }
     }
@@ -227,6 +319,12 @@ public class PlayerController : MonoBehaviour
                     Vector2 gravityVector = (tagTouching.gameObject.transform.position - transform.position).normalized;
                     float force = 250;
                     rb.AddForce(force * Time.deltaTime * gravityVector);
+                }
+                if (tagTouching.action == "heal")
+                {
+                    health -= tagTouching.damagetaken;
+                    tagTouching.interactable = false;
+                    StartCoroutine(Wait(tagTouching.waitTime, tagTouching, null));
                 }
             }
         }
@@ -251,6 +349,10 @@ public class PlayerController : MonoBehaviour
         else if (tagInteactable == null && weaponUsable != null)
         {
             weaponUsable.cooldownDone = true;
+        }
+        else if (health <= 0)
+        {
+            spriteRenderer.enabled = false;
         }
         else
         {

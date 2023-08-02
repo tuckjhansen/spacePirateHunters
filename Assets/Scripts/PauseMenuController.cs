@@ -1,36 +1,36 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class PauseMenuController : MonoBehaviour
 {
     private bool paused = false;
     public GameObject pauseMenu;
-    private Inventory inventoryScript;
     public GameObject mainPauseMenu;
     public GameObject helpPauseMenu;
+    public GameObject bindingsMenu;
+    public GameObject feedbackMenu;
+    public GameObject mainHelpMenu;
+    public InputActionReference pause;
 
-    private void Start()
-    {
-        inventoryScript = FindObjectOfType<Inventory>();
-    }
 
     void Update()
     {
-        if (!paused && !inventoryScript.inventoryOpen)
+        if (!paused && !Inventory.inventoryOpen)
         {
             pauseMenu.SetActive(false);
             Time.timeScale = 1f;
 
         }
-        if (paused && !inventoryScript.inventoryOpen)
+        if (paused && !Inventory.inventoryOpen)
         {
             pauseMenu.SetActive(true);
             Time.timeScale = 0f;
         }
-        /*if (Input.GetKey(KeyCode.Q)) 
+        if (pause.action.ReadValue<float>() != 0)
         {
             paused = true;
-        }*/
+        }
     }
     public void Quit()
     {
@@ -49,5 +49,25 @@ public class PauseMenuController : MonoBehaviour
     {
         mainPauseMenu.SetActive(true);
         helpPauseMenu.SetActive(false);
+    }
+    public void Feedback()
+    {
+        feedbackMenu.SetActive(true);
+        mainHelpMenu.SetActive(false);
+    }
+    public void Bindings()
+    {
+        bindingsMenu.SetActive(true);
+        mainHelpMenu.SetActive(false);
+    }
+    public void BackFromBindings()
+    {
+        bindingsMenu.SetActive(false);
+        mainHelpMenu.SetActive(true);
+    }
+    public void BackFromFeedback()
+    {
+        feedbackMenu.SetActive(false);
+        mainHelpMenu.SetActive(true);
     }
 }

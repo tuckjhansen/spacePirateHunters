@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class ItemClassInIventory
@@ -17,21 +18,28 @@ public class ItemClassInIventory
 public class Inventory : MonoBehaviour
 {
     public List<Item> items = new ();
-    public bool inventoryOpen = false;
+    public static bool inventoryOpen = false;
     private bool inventoryOpenable = true;
     public GameObject inventory;
     public GameObject HUD;
-    private PlayerController playerShipController;
+    private PlayerController playerController;
     private MiniShopScript miniShopScript;
     public Transform ItemContent;
     public GameObject InventoryItem;
     private ShopScript shopScript;
     public Transform weaponPrefabSpawnPoint;
-    public Transform hullPrefabSpawnPoint;
+    public Transform armorPrefabSpawnPoint;
+    public Transform specialWeaponPrefabSpawnPoint;
+    public Transform enginePrefabSpawnPoint;
+    [SerializeField] private Image weaponCoolDown;
+    [SerializeField] private Image specialWeaponCoolDown;
+    [SerializeField] private Image engineCoolDown;
+
+    [SerializeField]
+    private InputActionReference use;
 
     public void AddItem(Item item)
     {
-        
         items.Add(item);
     }
     public void EquipItem(Item item)
@@ -52,7 +60,18 @@ public class Inventory : MonoBehaviour
                 itemIcon.transform.localScale = new Vector3(1.1f, 1.1f, 1);
                 itemName.text = item.itemName;
                 itemIcon.sprite = item.icon;
-                /*playerShipController.weaponEquiped = item.itemName;*/
+                if (item.occupation == Item.Occupation.weapon)
+                {
+                    playerController.weaponEquiped = item.itemName;
+                    weaponCoolDown.sprite = item.icon;
+                    weaponCoolDown.color = Color.white;
+                }
+                else if (item.occupation == Item.Occupation.specialWeapon)
+                {
+                    playerController.specialWeaponEquiped = item.itemName;
+                    specialWeaponCoolDown.sprite = item.icon;
+                    specialWeaponCoolDown.color = Color.white;
+                }
             }
         }
     }
@@ -69,7 +88,7 @@ public class Inventory : MonoBehaviour
             TMP_Text itemName = itemCreated.transform.Find("ItemName").GetComponent<TMP_Text>();
             Image itemIcon = itemCreated.transform.Find("Image").GetComponent<Image>();
             Button itemButton = itemCreated.GetComponent<Button>();
-            itemButton.onClick.AddListener(delegate{EquipItem(item);});
+            itemButton.onClick.AddListener(delegate { EquipItem(item); });
             itemName.text = item.itemName;
             itemIcon.sprite = item.icon;
         }
@@ -77,7 +96,7 @@ public class Inventory : MonoBehaviour
 
     private void Start()
     {
-        playerShipController = FindObjectOfType<PlayerController>();
+        playerController = FindObjectOfType<PlayerController>();
         miniShopScript = FindObjectOfType<MiniShopScript>();
         shopScript = FindObjectOfType<ShopScript>();
         foreach (Item item in items)
@@ -101,14 +120,17 @@ public class Inventory : MonoBehaviour
     }
     private void Update()
     {
-        /*if (Input.GetKeyDown(KeyCode.E) && !inventoryOpen && inventoryOpenable && !playerShipController.touchingAdvanceAreaPortal && !playerShipController.touchingAreaPortal && !miniShopScript.touchingShop && !shopScript.touchingPlayer && playerShipController.health > 0)
+        if (!CommandScript.IsPaused)
         {
-            OpenInventory();
+            if (use.action.ReadValue<float>() != 0 && !inventoryOpen && inventoryOpenable && !miniShopScript.touchingShop && !shopScript.touchingPlayer && playerController.health > 0)
+            {
+                OpenInventory();
+            }
+            if (use.action.ReadValue<float>() != 0 && inventoryOpen && inventoryOpenable)
+            {
+                CloseInventory();
+            }
         }
-        if (Input.GetKeyDown(KeyCode.E) && inventoryOpen && inventoryOpenable && !playerShipController.touchingAdvanceAreaPortal && !playerShipController.touchingAreaPortal)
-        {
-            CloseInventory();
-        }*/
     }
     public void OpenInventory()
     {
@@ -118,7 +140,6 @@ public class Inventory : MonoBehaviour
         inventory.SetActive(true);
         ListItems();
         StartCoroutine(InventoryOpenWait());
-        Time.timeScale = 0.0001f;
     }
     public void CloseInventory()
     {
@@ -127,12 +148,11 @@ public class Inventory : MonoBehaviour
         HUD.SetActive(true);
         inventory.SetActive(false);
         StartCoroutine(InventoryOpenWait());
-        Time.timeScale = 1f;
     }
     
     IEnumerator InventoryOpenWait()
     {
-        yield return new WaitForSeconds(.1f);
+        yield return new WaitForSeconds(.3f);
         inventoryOpenable = true;
     }
 }

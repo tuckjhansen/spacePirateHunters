@@ -1,0 +1,4 @@
+repository "Space Pirate Hunters UNE@Arekcuta@cloud"
+  path "/"
+    br "/main"
+    co "/main"

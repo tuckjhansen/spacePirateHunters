@@ -13,39 +13,43 @@ public class SentryController : MonoBehaviour
     private Animator animator;
     private PlayerController playerShipController;
     private float damage;
-    private MiniShopScript miniShopScript;
+    private SaveScript saveScript;
+    private bool frozen = false;
 
     void Start()
     {
         player = GameObject.FindWithTag("Player");
         playerShipController = player.GetComponent<PlayerController>();
         animator = GetComponent<Animator>();
-        miniShopScript = FindObjectOfType<MiniShopScript>();
+        saveScript = FindObjectOfType<SaveScript>();
     }
 
     void Update()
     {
-        Vector3 diff = (player.transform.position - transform.position);
-        float angle = Mathf.Atan2(diff.y, diff.x);
-        transform.rotation = Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg);
-        if (health <= 0 && alive)
+        if (!frozen && !CommandScript.IsPaused && !Inventory.inventoryOpen)
         {
-            PlayerController.Stats.totalEnemiesKilled++;
-            PlayerController.Stats.enemiesKilledBeforeDeath++;
-            playerShipController.money += Random.Range(2, 4);
-            alive = false;
-            transform.localScale = new Vector3(.5f, .5f, 1);
-            animator.enabled = true;
-            StartCoroutine(ExplosionWait());
-        }
-        distance = Vector2.Distance(transform.position, player.transform.position);
-        if (distance <= 17 && coolDownOver && alive)
-        {
-            coolDownOver = false;
-            GameObject Laser = Instantiate(laserPrefab, shootPointTransform.position, shootPointTransform.rotation);
-            Rigidbody2D rb = Laser.GetComponent<Rigidbody2D>();
-            rb.AddForce(shootPointTransform.up * 20, ForceMode2D.Impulse);
-            StartCoroutine(ShootWait());
+            Vector3 diff = (player.transform.position - transform.position);
+            float angle = Mathf.Atan2(diff.y, diff.x);
+            transform.rotation = Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg);
+            if (health <= 0 && alive)
+            {
+                PlayerController.Stats.totalEnemiesKilled++;
+                PlayerController.Stats.enemiesKilledBeforeDeath++;
+                playerShipController.money += Random.Range(2, 4);
+                alive = false;
+                transform.localScale = new Vector3(.5f, .5f, 1);
+                animator.enabled = true;
+                StartCoroutine(ExplosionWait());
+            }
+            distance = Vector2.Distance(transform.position, player.transform.position);
+            if (distance <= 17 && coolDownOver && alive)
+            {
+                coolDownOver = false;
+                GameObject Laser = Instantiate(laserPrefab, shootPointTransform.position, shootPointTransform.rotation);
+                Rigidbody2D rb = Laser.GetComponent<Rigidbody2D>();
+                rb.AddForce(shootPointTransform.up * 20, ForceMode2D.Impulse);
+                StartCoroutine(ShootWait());
+            }
         }
     }
     IEnumerator ShootWait()
@@ -61,12 +65,25 @@ public class SentryController : MonoBehaviour
         yield return new WaitForSeconds(.4f);
         gameObject.SetActive(false);
     }
+
+    IEnumerator FrozenWait()
+    {
+        yield return new WaitForSeconds(4f);
+        frozen = false;
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Laser")
+        if (collision.CompareTag("Laser"))
         {
-            damage = miniShopScript.laser.level + 5;
+            damage = saveScript.laser.level + 5;
             health -= damage;
+        }
+        if (collision.CompareTag("EMP"))
+        {
+            health -= 7;
+            frozen = true;
+            StartCoroutine(FrozenWait());
+            Destroy(collision.gameObject);
         }
     }
 }

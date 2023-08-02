@@ -15,4 +15,4 @@ MonoBehaviour:
   itemName: Steel Hull
   icon: {fileID: 21300000, guid: c475cba340e4cfa44b594082f4ebe9b8, type: 3}
   haveItem: 1
-  occupation: hull
+  occupation: 1
